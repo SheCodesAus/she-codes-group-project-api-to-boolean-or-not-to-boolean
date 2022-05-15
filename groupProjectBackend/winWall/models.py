@@ -5,23 +5,23 @@ from django.contrib.auth import get_user_model
 class WinWall(models.Model):
     title = models.CharField(max_length=200)
     image = models.URLField()
-    start_date = models.DateTimeField(default=timezone.now, null = True, blank = True)
-    end_date = models.DateTimeField(null = True, blank = True)
-    is_open = models.BooleanField()
-    is_exported = models.BooleanField()
+    startDate = models.DateTimeField(default=timezone.now, null = True, blank = True)
+    endDate = models.DateTimeField(null = True, blank = True)
+    isOpen = models.BooleanField()
+    isExported = models.BooleanField()
 
 #   Add FK  
-    sticky_id = models.ForeignKey(
+    sticky_Id = models.ForeignKey(
         'StickyNotes',on_delete=models.CASCADE,
         related_name='sticky')
 
-    user_id = models.ForeignKey(
+    user_Id = models.ForeignKey(
         get_user_model(),
         on_delete = models.CASCADE,
         related_name = 'user')
 
-    # auth_id
+    # auth_Id
 
-    collection_id = models.ForeignKey(
+    collection_Id = models.ForeignKey(
         'Collection',on_delete=models.CASCADE,
         related_name='collection')
