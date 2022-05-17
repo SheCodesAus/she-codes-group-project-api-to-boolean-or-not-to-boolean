@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class WinwallConfig(AppConfig):
+class WinWallConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'winWall'
+    name = 'winwall'
