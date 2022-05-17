@@ -1,9 +1,14 @@
 from rest_framework.views import APIView
-from rest_framework.response import Response
-from .models import WinWall
-from. serializers import WinWallSerializer, WinWallDetailSerializer
+from rest_framework.response import Response, status, permissions
+from .models import WinWall, StickyNote
+from. serializers import WinWallSerializer, WinWallDetailSerializer, StickyNoteSerializer
+from unicodedata import category
+from django.shortcuts import render
+from django.http import Http404
+
 # from rest_framework import status, permissions, generics
 # from .permissions import IsOwnerorReadOnly
+# from rest_framework.pagination import LimitOffsetPagination
 
 
 class WinWallList(APIView):
@@ -60,3 +65,19 @@ class WinWallDetail(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# create sticky notes, need to check this still allows create without  
+
+class StickyNote(APIView):
+
+    def post(self, request):
+        serializer = StickyNoteSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(owner=request.user)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+                )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
