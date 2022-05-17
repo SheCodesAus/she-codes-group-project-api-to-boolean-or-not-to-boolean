@@ -36,6 +36,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 
 INSTALLED_APPS = [
+<<<<<<< HEAD
+    'winWall.apps.WinwallConfig',
+=======
+>>>>>>> dev
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
