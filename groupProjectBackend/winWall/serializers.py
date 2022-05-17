@@ -10,14 +10,14 @@ class WinWallSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     title = serializers.CharField(max_length=200)
     image = serializers.URLField()
-    startDate = serializers.DateTimeField()
-    endDate = serializers.DateTimeField()
-    isOpen = serializers.BooleanField()
-    isExported = serializers.BooleanField()
-    sticky_Id = serializers.IntegerField()
-    user_Id = serializers.ReadOnlyField(source='user.id')
+    start_date = serializers.DateTimeField()
+    end_date = serializers.DateTimeField()
+    is_open = serializers.BooleanField()
+    is_exported = serializers.BooleanField()
+    sticky_id = serializers.IntegerField()
+    user_id = serializers.ReadOnlyField(source='user.id')
     # auth_id
-    collection_Id = serializers.IntegerField()
+    collection_id = serializers.IntegerField()
 
 
     def create(self, validated_data):
@@ -27,14 +27,14 @@ class WinWallDetailSerializer(serializers.Serializer):
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
         instance.image = validated_data.get('image', instance.image)
-        instance.startDate = validated_data.get('start_date', instance.startDate)
-        instance.endDate = validated_data.get('end_date', instance.endDate)
+        instance.start_date = validated_data.get('start_date', instance.start_date)
+        instance.end_date = validated_data.get('end_date', instance.end_date)
         instance.isOpen = validated_data.get('is_open', instance.isOpen)
-        instance.isExported = validated_data.get('is_exported', instance.isExported)
-        instance.sticky_Id = validated_data.get('sticky_id', instance.sticky_Id)
-        instance.user_Id = validated_data.get('user_id', instance.user_Id)
+        instance.is_exported = validated_data.get('is_exported', instance.is_exported)
+        instance.sticky_id = validated_data.get('sticky_id', instance.sticky_id)
+        instance.user_id = validated_data.get('user_id', instance.user_id)
         # auth_Id
-        instance.collection_Id = validated_data.get('collection_id', instance.collection_Id)
+        instance.collection_id = validated_data.get('collection_id', instance.collection_id)
         
         instance.save()
         return instance
