@@ -15,25 +15,25 @@ class WinWall(models.Model):
     is_exported = models.BooleanField()
 
 #   Add FK  
-    sticky_id = models.ForeignKey(
-        'StickyNotes',on_delete=models.CASCADE,
-        related_name='sticky')
+    sticky_note = models.ForeignKey(
+        'StickyNote',on_delete=models.CASCADE,
+        )
 
     user_id = models.ForeignKey(
         get_user_model(),
         on_delete = models.CASCADE,
-        related_name = 'user')
+        )
 
     # auth_Id
 
-    collection_id = models.ForeignKey(
-        'Collection',on_delete=models.CASCADE,
-        related_name='collection')
+    # collection_id = models.ForeignKey(
+    #     'collection',on_delete=models.CASCADE,
+    #     )
 
 
 # will need a link to users, winwalls and collections
 class StickyNote(models.Model):
-    winComment = models.Charfield(max_length=200)
+    win_comment = models.CharField(max_length=200)
     # if we wanted to optionally allow users to enter their name as a serpate field on SN :
     # contributorName = models.CharField(max_length=20, blank=True, default='')
     
@@ -42,22 +42,19 @@ class StickyNote(models.Model):
         get_user_model(),
         null=True, blank=True,
         on_delete=models.CASCADE,
-        related_name='owner_stickyNote'
     )
  
-    # connection to winWall 
-    winWall = models.ForeignKey(
-        'winWall',
+    # connection to WinWall 
+    win_wall = models.ForeignKey(
+        'WinWall',
         null=True, blank=True,
         on_delete=models.CASCADE,
-        related_name='StickyNote_id'
     )
 
     # connection to status 
-    stickyNoteStatus = models.ForeignKey(
-        'stickyNoteStatus',
-        null=True, blank=True,
-        on_delete=models.CASCADE,
-        related_name='StickyNote_id'
-    )
+    # sticky_note_status = models.ForeignKey(
+    #     'sticky_note_status',
+    #     null=True, blank=True,
+    #     on_delete=models.CASCADE,
+    # )
     

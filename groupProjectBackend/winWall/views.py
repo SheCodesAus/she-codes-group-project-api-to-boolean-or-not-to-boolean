@@ -1,12 +1,12 @@
 from rest_framework.views import APIView
-from rest_framework.response import Response, status, permissions
+from rest_framework.response import Response
 from .models import WinWall, StickyNote
 from. serializers import WinWallSerializer, WinWallDetailSerializer, StickyNoteSerializer
 from unicodedata import category
 from django.shortcuts import render
 from django.http import Http404
+from rest_framework import status
 
-# from rest_framework import status, permissions, generics
 # from .permissions import IsOwnerorReadOnly
 # from rest_framework.pagination import LimitOffsetPagination
 
@@ -17,8 +17,8 @@ class WinWallList(APIView):
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request):
-        winwalls = WinWall.objects.all()
-        serializer = WinWallSerializer(winwalls, many=True)
+        win_walls = WinWall.objects.all()
+        serializer = WinWallSerializer(win_walls, many=True)
         return Response(serializer.data)
 
     def post(self,request):
@@ -39,23 +39,23 @@ class WinWallDetail(APIView):
 
     def get_object(self, pk):
         try:
-            winwall = WinWall.objects.get(pk=pk)
-            self.check_object_permissions(self.request,winwall)
-            return winwall
+            win_wall = WinWall.objects.get(pk=pk)
+            self.check_object_permissions(self.request,win_wall)
+            return win_wall
 
         except WinWall.DoesNotExist:
             raise Http404
     
     def get(self, request, pk):
-        winwall = self.get_object(pk)
-        serializer = WinWallDetailSerializer(winwall)
+        win_wall = self.get_object(pk)
+        serializer = WinWallDetailSerializer(win_wall)
         return Response(serializer.data)
 
     def put(self, request, pk):
-        winwall = self.get_object(pk)
+        win_wall = self.get_object(pk)
         data = request.data
         serializer = WinWallDetailSerializer(
-            instance = winwall,
+            instance = win_wall,
             data = data,
             partial = False
         )
@@ -67,7 +67,7 @@ class WinWallDetail(APIView):
 
 # create sticky notes, need to check this still allows create without  
 
-class StickyNote(APIView):
+class StickyNoteDetail(APIView):
 
     def post(self, request):
         serializer = StickyNoteSerializer(data=request.data)

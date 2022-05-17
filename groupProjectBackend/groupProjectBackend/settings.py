@@ -36,14 +36,11 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 
 INSTALLED_APPS = [
-<<<<<<< HEAD
-    'winWall.apps.WinwallConfig',
-=======
->>>>>>> dev
+    'winwall.apps.WinWallConfig',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    'django.contrib.admin',
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
