@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import WinWall, StickyNote
-# from users.models import CustomUser
+from users.models import SheCodesUser
 ## created serializers
 from unicodedata import category
 from django.forms import ValidationError
@@ -13,10 +13,12 @@ class WinWallSerializer(serializers.Serializer):
     end_date = serializers.DateTimeField()
     is_open = serializers.BooleanField()
     is_exported = serializers.BooleanField()
-    sticky_id = serializers.IntegerField()
-    user_id = serializers.ReadOnlyField(source='user.id')
+    # sticky_id = serializers.IntegerField()
+    # user_id = serializers.ReadOnlyField(source='user.id')
+    user_id = serializers.ReadOnlyField(source='user_id.id')
+
     # auth_id
-    collection_id = serializers.IntegerField()
+    # collection_id = serializers.IntegerField()
 
 
     def create(self, validated_data):
@@ -30,7 +32,7 @@ class WinWallDetailSerializer(serializers.Serializer):
         instance.end_date = validated_data.get('end_date', instance.end_date)
         instance.is_open = validated_data.get('is_open', instance.is_open)
         instance.is_exported = validated_data.get('is_exported', instance.is_exported)
-        instance.sticky_id = validated_data.get('sticky_id', instance.sticky_id)
+        # instance.sticky_id = validated_data.get('sticky_id', instance.sticky_id)
         instance.user_id = validated_data.get('user_id', instance.user_id)
         # auth_Id
         # instance.collection_id = validated_data.get('collection_id', instance.collection_id)

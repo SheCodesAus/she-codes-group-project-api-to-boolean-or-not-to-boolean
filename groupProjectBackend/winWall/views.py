@@ -8,8 +8,6 @@ from django.http import Http404
 from rest_framework import status
 
 # from .permissions import IsOwnerorReadOnly
-# from rest_framework.pagination import LimitOffsetPagination
-
 
 class WinWallList(APIView):
     
@@ -24,7 +22,8 @@ class WinWallList(APIView):
     def post(self,request):
         serializer = WinWallSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(owner = request.user)
+            # serializer.save()
+            serializer.save(user_id = request.user)
             return Response(
                 serializer.data,
                 status = status.HTTP_201_CREATED)
