@@ -15,9 +15,9 @@ class WinWall(models.Model):
     is_exported = models.BooleanField()
 
 #   Add FK  
-    sticky_note = models.ForeignKey(
-        'StickyNote',on_delete=models.CASCADE,
-        )
+    # sticky_note = models.ForeignKey(
+    #     'StickyNote',on_delete=models.CASCADE,
+    #     )
 
     user_id = models.ForeignKey(
         get_user_model(),
