@@ -2,11 +2,35 @@ from .models import SheCodesUser
 from .serializers import SheCodesUserSerializer, SheCodesUserDetailSerializer
 from django.http import Http404
 from rest_framework.views import APIView
-from rest_framework import permissions, status
+from rest_framework import permissions, status, generics
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+from .models import CustomUser
+from django.contrib.auth import logout 
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import gettext_lazy as _
 
+
+
+class SheCodesUserLogout(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        return self.logout(request)
+
+    def logout(self, request):
+        try:
+            request.user.auth_token.delete()
+        except (AttributeError, ObjectDoesNotExist):
+            pass
+
+        logout(request)
+
+        return Response({"success": _("Successfully logged out.")},
+                        status=status.HTTP_200_OK)
+
+      
 class CustomObtainAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         response = super(CustomObtainAuthToken, self).post(request, *args, **kwargs)
@@ -67,3 +91,4 @@ class SheCodesUserDetail(APIView):
         user = self.get_object(pk)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
