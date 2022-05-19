@@ -35,7 +35,7 @@ class WinWallList(APIView):
 
 class WinWallDetail(APIView):
 
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerorReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def get_object(self, pk):
         try:
