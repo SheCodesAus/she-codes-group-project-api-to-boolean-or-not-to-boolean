@@ -36,14 +36,31 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 
 INSTALLED_APPS = [
+    'winwall.apps.WinWallConfig',
+    'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
-    'django.contrib.admin',
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users.apps.UsersConfig',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,
+    'PAGINATE_BY_PARAM': 'limit'
+
+}
+
+AUTH_USER_MODEL = 'users.SheCodesUser'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
