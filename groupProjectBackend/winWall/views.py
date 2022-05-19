@@ -1,11 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import WinWall, StickyNote
-from. serializers import WinWallSerializer, WinWallDetailSerializer, StickyNoteSerializer
+from .serializers import WinWallSerializer, WinWallDetailSerializer, StickyNoteSerializer
 from unicodedata import category
 from django.shortcuts import render
 from django.http import Http404
-from rest_framework import status
+from rest_framework import status, permissions
+from .permissions import IsOwnerOrReadOnly
 
 # from .permissions import IsOwnerorReadOnly
 
@@ -34,7 +35,7 @@ class WinWallList(APIView):
 
 class WinWallDetail(APIView):
 
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerorReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerorReadOnly]
 
     def get_object(self, pk):
         try:

@@ -10,12 +10,12 @@ from . import views
 # adding log out URL 
 urlpatterns = [
 
-    path('users/logout/', views.CustomUserLogOut.as_view()),
+    path('users/logout/', views.SheCodesUserLogout.as_view()),
     path('', views.SheCodesUserList.as_view()),
     path('<int:pk>/', views.SheCodesUserDetail.as_view()),
     path('authenticate/', views.CustomObtainAuthToken.as_view()),
     
-
+]
 
 
 urlpatterns = format_suffix_patterns(urlpatterns)
