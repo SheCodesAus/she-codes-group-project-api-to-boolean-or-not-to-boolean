@@ -20,7 +20,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Log out
 
-class CustomUserLogOut(APIView):
+class SheCodesUserLogout(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
