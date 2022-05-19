@@ -24,6 +24,8 @@ class WinWallSerializer(serializers.Serializer):
     def create(self, validated_data):
         return WinWall.objects.create(**validated_data)
 
+
+#fixed serializer
 class WinWallDetailSerializer(WinWallSerializer):
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
