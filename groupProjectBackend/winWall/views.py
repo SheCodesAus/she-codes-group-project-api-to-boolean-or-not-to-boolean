@@ -13,7 +13,7 @@ from .permissions import IsOwnerOrReadOnly
 class WinWallList(APIView):
     
     # I can see the winwall list when loged off but I can't post/create a project unless logged in.
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request):
         win_walls = WinWall.objects.all()
@@ -57,7 +57,7 @@ class WinWallDetail(APIView):
         serializer = WinWallDetailSerializer(
             instance = win_wall,
             data = data,
-            partial = False
+            partial = True
         )
         print(serializer)
         if serializer.is_valid():
