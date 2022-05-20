@@ -1,9 +1,29 @@
+from asyncio.windows_events import NULL
 from rest_framework import serializers
 from .models import WinWall, StickyNote
 from users.models import SheCodesUser
 ## created serializers
 from unicodedata import category
 from django.forms import ValidationError
+
+
+class StickyNoteSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    win_comment = serializers.CharField(max_length=200)
+    guest = serializers.SerializerMethodField()
+    owner = serializers.ReadOnlyField(source='owner.id')
+    owner_name = serializers.ReadOnlyField(source='owner.username')
+    # link to WinWall  and status
+    win_wall_id = serializers.IntegerField()
+    # sticky_note_status_id = serializers.IntegerField
+#    definiing guest based on if owner applied to sticky note 
+    def get_guest(self, obj):
+        return obj.owner == NULL
+
+    # for sticky notename, would need to make this optional via serializer as well 
+    # contributorName = serializers.CharField(max_length=20)
+    def create(self, validated_data):
+        return StickyNote.objects.create(**validated_data)
 
 class WinWallSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
@@ -27,6 +47,7 @@ class WinWallSerializer(serializers.Serializer):
 
 #fixed serializer
 class WinWallDetailSerializer(WinWallSerializer):
+    stickynotes = StickyNoteSerializer(many=True, read_only=True)
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
         instance.image = validated_data.get('image', instance.image)
@@ -42,20 +63,4 @@ class WinWallDetailSerializer(WinWallSerializer):
         instance.save()
         return instance
 
-class StickyNoteSerializer(serializers.Serializer):
-    id = serializers.ReadOnlyField()
-    win_comment = serializers.CharField(max_length=200)
-    guest = serializers.SerializerMethodField()
-    owner = serializers.ReadOnlyField(source='owner.id')
-    owner_name = serializers.ReadOnlyField(source='owner.username')
-    # link to WinWall  and status
-    win_wall_id = serializers.IntegerField
-    # sticky_note_status_id = serializers.IntegerField
-#    definiing guest based on if owner applied to sticky note 
-    def get_guest(self, obj):
-        return obj.owner == NULL
 
-    # for sticky notename, would need to make this optional via serializer as well 
-    # contributorName = serializers.CharField(max_length=20)
-    def create(self, validated_data):
-        return StickyNote.objects.create(**validated_data)

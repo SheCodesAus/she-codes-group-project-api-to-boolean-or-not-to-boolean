@@ -51,7 +51,7 @@ class StickyNote(models.Model):
         'WinWall',
         null=True, blank=True,
         on_delete=models.CASCADE,
-        related_name='stickynote_id'
+        related_name='stickynotes'
     )
 
     # connection to status 
