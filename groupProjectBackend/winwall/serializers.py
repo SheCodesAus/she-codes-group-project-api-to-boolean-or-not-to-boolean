@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from rest_framework import serializers
 from .models import WinWall, StickyNote
 from users.models import SheCodesUser
@@ -18,7 +17,7 @@ class StickyNoteSerializer(serializers.Serializer):
     # sticky_note_status_id = serializers.IntegerField
 #    definiing guest based on if owner applied to sticky note 
     def get_guest(self, obj):
-        return obj.owner == NULL
+        return obj.owner == None
 
     # for sticky notename, would need to make this optional via serializer as well 
     # contributorName = serializers.CharField(max_length=20)
