@@ -67,7 +67,12 @@ class WinWallDetail(APIView):
 
 # create sticky notes, need to check this still allows create without  
 
-class StickyNoteDetail(APIView):
+class StickyNoteList(APIView):
+
+    def get(self, request):
+        stickynotes = StickyNote.objects.all()
+        serializer = StickyNoteSerializer(stickynotes, many=True)
+        return Response(serializer.data)
 
     def post(self, request):
         serializer = StickyNoteSerializer(data=request.data)
