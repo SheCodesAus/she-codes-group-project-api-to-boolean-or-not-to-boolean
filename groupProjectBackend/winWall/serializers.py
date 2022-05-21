@@ -11,8 +11,8 @@ class StickyNoteSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     win_comment = serializers.CharField(max_length=200)
     guest = serializers.SerializerMethodField()
-    owner = serializers.ReadOnlyField(source='owner.id')
-    owner_name = serializers.ReadOnlyField(source='owner.username')
+    owner = serializers.ReadOnlyField(source='owner.id', required=False)
+    owner_name = serializers.ReadOnlyField(source='owner.username', required=False)
     # link to WinWall  and status
     win_wall_id = serializers.IntegerField()
     # sticky_note_status_id = serializers.IntegerField
