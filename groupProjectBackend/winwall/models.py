@@ -1,10 +1,10 @@
-# added basic imports to models 
-
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
 from django.forms import CharField
 from django.conf import settings
+from datetime import datetime
+from django.utils import timezone
 
 
 class WinWall(models.Model):
@@ -18,6 +18,20 @@ class WinWall(models.Model):
     # sticky_note = models.ForeignKey(
     #     'StickyNote',on_delete=models.CASCADE,
     #     )
+    
+    def is_open(self):
+        today = datetime.now()
+        today = timezone.localtime()
+        end_time = self.end_date 
+        if end_time == None or '':
+            end_time = datetime.max()
+        print(today)
+        print(timezone)
+       
+        if end_time > today:
+            return True
+        else:
+            return False
 
     owner = models.ForeignKey(
         get_user_model(),
@@ -42,6 +56,8 @@ def get_user_or_anonymous():
 # will need a link to users, winwalls and collections
 class StickyNote(models.Model):
     win_comment = models.CharField(max_length=200)
+    is_approved = models.BooleanField()
+    is_archived = models.BooleanField()
     # if we wanted to optionally allow users to enter their name as a serpate field on SN :
     # contributorName = models.CharField(max_length=20, blank=True, default='')
     

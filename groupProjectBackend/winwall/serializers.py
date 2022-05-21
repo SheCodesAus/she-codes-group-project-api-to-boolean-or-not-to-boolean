@@ -16,10 +16,27 @@ class StickyNoteSerializer(serializers.Serializer):
     guest = serializers.SerializerMethodField()
     owner = serializers.ReadOnlyField(source='owner.id', required=False)
     owner_name = serializers.ReadOnlyField(source='owner.username', required=False)
+    is_approved = serializers.BooleanField()
+    is_archived = serializers.BooleanField()
+   
+
     # link to WinWall  and status
     win_wall_id = serializers.IntegerField()
     # sticky_note_status_id = serializers.IntegerField
-#    definiing guest based on if owner applied to sticky note 
+
+    # mthod 2 using a computed status, think this is a better method 
+
+    sticky_status = serializers.SerializerMethodField()
+
+    # definiing guest based on if owner applied to sticky note 
+    def sticky_status(self, obj):
+        win_wall_info = WinWall.objects.filter(pk=obj.win_wall_id)
+        is_live = win_wall_info.is_open()
+        if is_live == True:
+            return 'Live'
+
+        return
+
     def get_guest(self, obj):
         return obj.owner == None
 
@@ -52,27 +69,29 @@ class WinWallSerializer(serializers.Serializer):
     # auth_id
     # collection_id = serializers.IntegerField()
     def get_is_open(self, obj):
-        today = datetime.now()
-        today = timezone.localtime()
-        end_time = obj.end_date 
-        if end_time == None or '':
-            end_time = datetime.max()
-        print(today)
-        print(timezone)
-       
-        if end_time > today:
-            return True
-        else:
-            return False
+        return obj.is_open()
         
-
     def create(self, validated_data):
         return WinWall.objects.create(**validated_data)
+
+
+class WinWallBulkUpdateSerializer(serializers.Serializer):
+    # bulk_approve = serializers.BooleanField()
+    # bulk_archive = serializers.BooleanField()
+
+    #  nice to have - add sum of approved or archived sticky notes 
+    def update(self, instance, validated_data):
+        for note in instance:
+            note.is_approved = validated_data.get('bulk_approve', note.is_approved)
+            note.is_archived = validated_data.get('bulk_archive', note.is_archived)
+            note.save()
+        return instance
 
 
 #fixed serializer
 class WinWallDetailSerializer(WinWallSerializer):
     stickynotes = StickyNoteSerializer(many=True, read_only=True)
+
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
         instance.image = validated_data.get('image', instance.image)
