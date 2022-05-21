@@ -1,16 +1,16 @@
 from django.forms import CharField
 from rest_framework import serializers
-from .models import SheCodesUser, SheCodesGuestUser
+from .models import SheCodesUser
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
 
 
-class SheCodesGuestUserSerializer(serializers.Serializer):
-    id = serializers.ReadOnlyField()
+# class SheCodesGuestUserSerializer(serializers.Serializer):
+#     id = serializers.ReadOnlyField()
 
-    def create(self, validated_data):
-        return SheCodesGuestUser.objects.create(**validated_data)
+#     def create(self, validated_data):
+#         return SheCodesGuestUser.objects.create(**validated_data)
 
 class SheCodesUserSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()

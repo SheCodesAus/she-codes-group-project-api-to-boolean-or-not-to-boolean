@@ -48,9 +48,9 @@ class StickyNote(models.Model):
     # contributorName = models.CharField(max_length=20, blank=True, default='')
     
     # ive called users 'owner' here based on prev project 
-    owner = models.ManyToOneRel(
+    owner = models.ForeignKey(
         get_user_or_anonymous(),
-        # null=True, blank=True,
+        null=True, blank=True,
         on_delete=models.CASCADE,
         related_name='owner_stickynotes'
     )
