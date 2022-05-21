@@ -2,16 +2,20 @@ from rest_framework import serializers
 from .models import WinWall, StickyNote
 from users.models import SheCodesUser
 ## created serializers
+from datetime import datetime
+from django.utils import timezone
 from unicodedata import category
 from django.forms import ValidationError
+
+
 
 
 class StickyNoteSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     win_comment = serializers.CharField(max_length=200)
     guest = serializers.SerializerMethodField()
-    owner = serializers.ReadOnlyField(source='owner.id')
-    owner_name = serializers.ReadOnlyField(source='owner.username')
+    owner = serializers.ReadOnlyField(source='owner.id', required=False)
+    owner_name = serializers.ReadOnlyField(source='owner.username', required=False)
     # link to WinWall  and status
     win_wall_id = serializers.IntegerField()
     # sticky_note_status_id = serializers.IntegerField
@@ -24,21 +28,40 @@ class StickyNoteSerializer(serializers.Serializer):
     def create(self, validated_data):
         return StickyNote.objects.create(**validated_data)
 
+
+class StickyNoteDetailSerializer(StickyNoteSerializer):
+
+    def update(self, instance, validated_data):
+        instance.win_comment = validated_data.get('win_comment', instance.win_comment)
+        instance.save()
+        return instance 
+
+
 class WinWallSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     title = serializers.CharField(max_length=200)
     image = serializers.URLField()
     start_date = serializers.DateTimeField()
     end_date = serializers.DateTimeField()
-    is_open = serializers.BooleanField()
+    is_open = serializers.SerializerMethodField()
     is_exported = serializers.BooleanField()
     # sticky_id = serializers.IntegerField()
     # user_id = serializers.ReadOnlyField(source='user.id')
     user_id = serializers.ReadOnlyField(source='user_id.id')
-
+    
     # auth_id
     # collection_id = serializers.IntegerField()
-
+    def get_is_open(self, obj):
+        today = datetime.now()
+        today = timezone.localtime()
+        print(today)
+        print(timezone)
+       
+        if obj.end_date > today:
+            return True
+        else:
+            return False
+        
 
     def create(self, validated_data):
         return WinWall.objects.create(**validated_data)

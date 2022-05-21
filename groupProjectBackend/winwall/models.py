@@ -1,9 +1,11 @@
 # added basic imports to models 
 
+from asyncio.windows_events import NULL
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
 from django.forms import CharField
+from django.conf import settings
 
 
 class WinWall(models.Model):
@@ -30,7 +32,14 @@ class WinWall(models.Model):
     # collection_id = models.ForeignKey(
     #     'collection',on_delete=models.CASCADE,
     #     )
-
+def get_user_or_anonymous():
+   
+    try:
+        # return get_user_model()
+        print(settings.AUTH_USER_MODEL)
+        return settings.AUTH_USER_MODEL
+    except ValueError:
+        return  'self'
 
 # will need a link to users, winwalls and collections
 class StickyNote(models.Model):
@@ -40,7 +49,7 @@ class StickyNote(models.Model):
     
     # ive called users 'owner' here based on prev project 
     owner = models.ForeignKey(
-        get_user_model(),
+        get_user_or_anonymous(),
         null=True, blank=True,
         on_delete=models.CASCADE,
         related_name='owner_stickynotes'
