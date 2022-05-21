@@ -5,6 +5,19 @@ from django.db import models
 from django.utils import timezone
 from django.forms import CharField
 
+class Collection(models.Model):
+    title = models.CharField(max_length=200)
+    image = models.URLField()
+    is_exported = models.BooleanField()
+    slug = models.SlugField()
+
+    user_id = models.ForeignKey(
+        get_user_model(),
+        on_delete = models.CASCADE,
+        )
+
+    def __str__(self):
+        return self.title
 
 class WinWall(models.Model):
     title = models.CharField(max_length=200)
@@ -14,22 +27,15 @@ class WinWall(models.Model):
     is_open = models.BooleanField()
     is_exported = models.BooleanField()
 
-#   Add FK  
-    # sticky_note = models.ForeignKey(
-    #     'StickyNote',on_delete=models.CASCADE,
-    #     )
-
     user_id = models.ForeignKey(
         get_user_model(),
         on_delete = models.CASCADE,
         related_name='user_win_walls'
         )
 
-    # auth_Id
-
-    # collection_id = models.ForeignKey(
-    #     'collection',on_delete=models.CASCADE,
-    #     )
+    collection_id = models.ForeignKey(
+        'Collection',on_delete=models.CASCADE, null = True, blank =True
+        )
 
 
 # will need a link to users, winwalls and collections

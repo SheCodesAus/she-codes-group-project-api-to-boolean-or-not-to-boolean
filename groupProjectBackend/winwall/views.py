@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import WinWall, StickyNote
-from .serializers import WinWallSerializer, WinWallDetailSerializer, StickyNoteSerializer
+from .models import Collection, WinWall, StickyNote
+from .serializers import WinWallSerializer, WinWallDetailSerializer, StickyNoteSerializer, CollectionSerializer, CollectionDetailSerializer
 from unicodedata import category
 from django.shortcuts import render
 from django.http import Http404
@@ -9,6 +9,46 @@ from rest_framework import status, permissions
 from .permissions import IsOwnerOrReadOnly
 
 # from .permissions import IsOwnerorReadOnly
+
+class CollectionList(APIView):
+
+    def get(self, request):
+        collections = Collection.objects.all()
+        serializer = CollectionSerializer(collections, many=True)
+        return Response(serializer.data)
+ 
+    def post(self,request):
+        serializer = CollectionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user_id = request.user)
+            return Response(
+                serializer.data,
+                status = status.HTTP_201_CREATED)
+        
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST)
+        
+class CollectionDetail(APIView):
+    
+    def get(self, request):
+        collections = CollectionDetail.objects.all()
+        serializer = CollectionDetailSerializer(collections, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = CollectionDetailSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(owner=request.user)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+                )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
 
 class WinWallList(APIView):
     

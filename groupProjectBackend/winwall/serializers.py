@@ -1,9 +1,32 @@
 from rest_framework import serializers
-from .models import WinWall, StickyNote
+from .models import WinWall, StickyNote, Collection
 from users.models import SheCodesUser
 ## created serializers
 from unicodedata import category
 from django.forms import ValidationError
+
+class CollectionSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    title = serializers.CharField(max_length=200)
+    image = serializers.URLField()
+    is_exported = serializers.BooleanField()
+    slug = serializers.SlugField()
+    user_id = serializers.ReadOnlyField(source='user_id.id')
+
+    def create(self, validated_data):
+        return Collection.objects.create(**validated_data)
+
+
+class CollectionDetailSerializer(CollectionSerializer):
+        
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.image = validated_data.get('image', instance.image)
+        instance.is_exported = validated_data.get('is_exported', instance.is_exported)
+        instance.slug = validated_data.get('slug', instance.slug)
+        
+        instance.save() 
+        return instance
 
 
 class StickyNoteSerializer(serializers.Serializer):
@@ -35,9 +58,7 @@ class WinWallSerializer(serializers.Serializer):
     # sticky_id = serializers.IntegerField()
     # user_id = serializers.ReadOnlyField(source='user.id')
     user_id = serializers.ReadOnlyField(source='user_id.id')
-
-    # auth_id
-    # collection_id = serializers.IntegerField()
+    collection_id = serializers.IntegerField()
 
 
     def create(self, validated_data):
@@ -48,6 +69,7 @@ class WinWallSerializer(serializers.Serializer):
 class WinWallDetailSerializer(WinWallSerializer):
     stickynotes = StickyNoteSerializer(many=True, read_only=True)
     def update(self, instance, validated_data):
+        
         instance.title = validated_data.get('title', instance.title)
         instance.image = validated_data.get('image', instance.image)
         instance.start_date = validated_data.get('start_date', instance.start_date)
