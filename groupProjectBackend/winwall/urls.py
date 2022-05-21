@@ -6,6 +6,7 @@ urlpatterns = [
     path('win-walls/', views.WinWallList.as_view()),
     path('win-wall/<int:pk>/', views.WinWallDetail.as_view()),
     path('sticky-note/', views.StickyNoteList.as_view()),
+    path('sticky-note/<int:pk>/', views.StickyNoteDetail.as_view()),
     ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -1,6 +1,5 @@
 # added basic imports to models 
 
-from asyncio.windows_events import NULL
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
