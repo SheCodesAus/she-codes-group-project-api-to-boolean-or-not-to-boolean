@@ -12,7 +12,6 @@ class WinWall(models.Model):
     image = models.URLField()
     start_date = models.DateTimeField(default=timezone.now, null = True, blank = True)
     end_date = models.DateTimeField(null = True, blank = True)
-    is_open = models.BooleanField()
     is_exported = models.BooleanField()
 
 #   Add FK  
@@ -20,7 +19,7 @@ class WinWall(models.Model):
     #     'StickyNote',on_delete=models.CASCADE,
     #     )
 
-    user_id = models.ForeignKey(
+    owner = models.ForeignKey(
         get_user_model(),
         on_delete = models.CASCADE,
         related_name='user_win_walls'

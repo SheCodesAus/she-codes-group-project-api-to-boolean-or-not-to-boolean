@@ -47,17 +47,20 @@ class WinWallSerializer(serializers.Serializer):
     is_exported = serializers.BooleanField()
     # sticky_id = serializers.IntegerField()
     # user_id = serializers.ReadOnlyField(source='user.id')
-    user_id = serializers.ReadOnlyField(source='user_id.id')
+    owner = serializers.ReadOnlyField(source='owner.id')
     
     # auth_id
     # collection_id = serializers.IntegerField()
     def get_is_open(self, obj):
         today = datetime.now()
         today = timezone.localtime()
+        end_time = obj.end_date 
+        if end_time == None or '':
+            end_time = datetime.max()
         print(today)
         print(timezone)
        
-        if obj.end_date > today:
+        if end_time > today:
             return True
         else:
             return False
@@ -75,10 +78,9 @@ class WinWallDetailSerializer(WinWallSerializer):
         instance.image = validated_data.get('image', instance.image)
         instance.start_date = validated_data.get('start_date', instance.start_date)
         instance.end_date = validated_data.get('end_date', instance.end_date)
-        instance.is_open = validated_data.get('is_open', instance.is_open)
         instance.is_exported = validated_data.get('is_exported', instance.is_exported)
         # instance.sticky_id = validated_data.get('sticky_id', instance.sticky_id)
-        instance.user_id = validated_data.get('user_id', instance.user_id)
+        instance.owner = validated_data.get('owner', instance.owner)
         # auth_Id
         # instance.collection_id = validated_data.get('collection_id', instance.collection_id)
         

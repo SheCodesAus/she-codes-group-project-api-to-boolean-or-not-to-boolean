@@ -25,7 +25,7 @@ class WinWallList(APIView):
         serializer = WinWallSerializer(data=request.data)
         if serializer.is_valid():
             # serializer.save()
-            serializer.save(user_id = request.user)
+            serializer.save(owner = request.user)
             return Response(
                 serializer.data,
                 status = status.HTTP_201_CREATED)
