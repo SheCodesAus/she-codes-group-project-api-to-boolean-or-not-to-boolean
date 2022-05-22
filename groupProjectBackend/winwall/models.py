@@ -6,6 +6,19 @@ from django.conf import settings
 from datetime import datetime
 from django.utils import timezone
 
+class Collection(models.Model):
+    title = models.CharField(max_length=200)
+    image = models.URLField()
+    is_exported = models.BooleanField()
+    slug = models.SlugField()
+
+    user_id = models.ForeignKey(
+        get_user_model(),
+        on_delete = models.CASCADE,
+        )
+
+    def __str__(self):
+        return self.title
 
 class WinWall(models.Model):
     title = models.CharField(max_length=200)
@@ -39,12 +52,10 @@ class WinWall(models.Model):
         related_name='user_win_walls'
         )
 
-    # auth_Id
-
-    # collection_id = models.ForeignKey(
-    #     'collection',on_delete=models.CASCADE,
-    #     )
-def get_user_or_anonymous():
+    collection_id = models.ForeignKey(
+        'Collection',on_delete=models.CASCADE, null = True, blank =True
+        )
+    def get_user_or_anonymous():
    
     try:
         # return get_user_model()
