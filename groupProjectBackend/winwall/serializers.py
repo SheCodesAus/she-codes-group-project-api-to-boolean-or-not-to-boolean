@@ -68,8 +68,8 @@ class StickyNoteSerializer(serializers.Serializer):
 
 
 class StickyNoteDetailSerializer(StickyNoteSerializer):
-    is_approved = serializers.BooleanField()
-    is_archived = serializers.BooleanField()
+    is_approved = serializers.BooleanField(required=False)
+    is_archived = serializers.BooleanField(required=False)
     sticky_status = serializers.SerializerMethodField()
 
     def get_sticky_status(self, obj):
