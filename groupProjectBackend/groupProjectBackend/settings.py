@@ -60,6 +60,12 @@ REST_FRAMEWORK = {
 
 }
 
+# Permissions:
+# AllowAny
+# IsAuthenticated
+# IsAdminUser
+# IsAuthenticatedOrReadOnly
+
 AUTH_USER_MODEL = 'users.SheCodesUser'
 
 MIDDLEWARE = [
