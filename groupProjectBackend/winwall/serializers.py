@@ -16,8 +16,8 @@ class StickyNoteSerializer(serializers.Serializer):
     guest = serializers.SerializerMethodField()
     owner = serializers.ReadOnlyField(source='owner.id', required=False)
     owner_name = serializers.ReadOnlyField(source='owner.username', required=False)
-    is_approved = serializers.BooleanField()
-    is_archived = serializers.BooleanField()
+    is_approved = serializers.BooleanField(required=False)
+    is_archived = serializers.BooleanField(required=False)
    
 
     # link to WinWall  and status
