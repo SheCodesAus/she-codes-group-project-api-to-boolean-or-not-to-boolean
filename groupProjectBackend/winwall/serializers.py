@@ -1,11 +1,34 @@
 from rest_framework import serializers
-from .models import WinWall, StickyNote
+from .models import WinWall, StickyNote, Collection
 from users.models import SheCodesUser
 ## created serializers
 from datetime import datetime
 from django.utils import timezone
 from unicodedata import category
 from django.forms import ValidationError
+
+class CollectionSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    title = serializers.CharField(max_length=200)
+    image = serializers.URLField()
+    is_exported = serializers.BooleanField()
+    slug = serializers.SlugField()
+    user_id = serializers.ReadOnlyField(source='user_id.id')
+
+    def create(self, validated_data):
+        return Collection.objects.create(**validated_data)
+
+
+class CollectionDetailSerializer(CollectionSerializer):
+        
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.image = validated_data.get('image', instance.image)
+        instance.is_exported = validated_data.get('is_exported', instance.is_exported)
+        instance.slug = validated_data.get('slug', instance.slug)
+        
+        instance.save() 
+        return instance
 
 
 
@@ -83,13 +106,14 @@ class WinWallSerializer(serializers.Serializer):
     is_exported = serializers.BooleanField()
     # sticky_id = serializers.IntegerField()
     # user_id = serializers.ReadOnlyField(source='user.id')
+    collection_id = serializers.IntegerField()
     owner = serializers.ReadOnlyField(source='owner.id')
     
     # auth_id
     # collection_id = serializers.IntegerField()
     def get_is_open(self, obj):
         return obj.is_open()
-        
+    
     def create(self, validated_data):
         return WinWall.objects.create(**validated_data)
 
@@ -113,6 +137,7 @@ class WinWallDetailSerializer(WinWallSerializer):
     stickynotes = StickyNoteSerializer(many=True, read_only=True)
 
     def update(self, instance, validated_data):
+        
         instance.title = validated_data.get('title', instance.title)
         instance.image = validated_data.get('image', instance.image)
         instance.start_date = validated_data.get('start_date', instance.start_date)
