@@ -1,3 +1,4 @@
+import collections
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Collection, WinWall, StickyNote
@@ -10,9 +11,16 @@ from rest_framework import status, permissions
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.permissions import BasePermission, IsAdminUser, SAFE_METHODS
 
+class IsAdminUserOrReadOnly(IsAdminUser):
+    def has_permission(self, request, view):
+        is_admin = super(
+            IsAdminUserOrReadOnly, 
+            self).has_permission(request, view)
+        # Python3: is_admin = super().has_permission(request, view)
+        return request.method in SAFE_METHODS or is_admin
+
 class WinWallOwnerWritePermission(BasePermission):
     message = "Editing Win Wall data is restricted to the administrators & approvers of this site only."
-
 
     def has_object_permission(self, request, view, obj):
         # GET_METHOD is a tuple that contains get, options and head
@@ -26,51 +34,6 @@ class AdminWinWallList(APIView):
     permission_classes = [
         IsAdminUser
         ]
-
-class CollectionList(APIView):
-
-    def get(self, request):
-        collections = Collection.objects.all()
-        serializer = CollectionSerializer(collections, many=True)
-        return Response(serializer.data)
- 
-    def post(self,request):
-        serializer = CollectionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user_id = request.user)
-            return Response(
-                serializer.data,
-                status = status.HTTP_201_CREATED)
-        
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST)
-        
-class CollectionDetail(APIView):
-    
-    def get(self, request):
-        collections = CollectionDetail.objects.all()
-        serializer = CollectionDetailSerializer(collections, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = CollectionDetailSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(owner=request.user)
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED
-                )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-
-class WinWallList(APIView):
-    
-    # I can see the winwall list when loged off but I can't post/create a project unless logged in.
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request):
         win_walls = WinWall.objects.all()
@@ -163,6 +126,69 @@ class SheCoderWinWallDetailView(APIView):
         serializer = WinWallDetailSerializer(win_wall)
         return Response(serializer.data)
 
+class WinWallBulkUpdate(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get_object(self, pk):
+        try:
+            win_wall_sticky_notes = StickyNote.objects.filter(win_wall_id=pk)
+            # self.check_object_permissions(self.request,win_wall_sticky_notes)
+            return win_wall_sticky_notes
+
+        except WinWall.DoesNotExist:
+            raise Http404
+
+    def put(self, request, pk):
+        win_wall_sticky_notes = self.get_object(pk)
+        data = request.data
+        serializer = WinWallBulkUpdateSerializer(
+            instance = win_wall_sticky_notes,
+            data = data,
+            partial = True
+        )
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CollectionList(APIView):
+    permission_classes = [IsAdminUserOrReadOnly]
+
+    def get(self, request):
+        collections = Collection.objects.all()
+        serializer = CollectionSerializer(collections, many=True)
+        return Response(serializer.data)
+ 
+    def post(self,request):
+        serializer = CollectionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user_id = request.user)
+            return Response(
+                serializer.data,
+                status = status.HTTP_201_CREATED)
+        
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST)
+        
+class CollectionDetail(APIView):
+    permission_classes = [IsAdminUserOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            collections = Collection.objects.get(pk=pk)
+            self.check_object_permissions(self.request,collections)
+            return collections
+
+        except Collection.DoesNotExist:
+            raise Http404
+    
+    def get(self, request, pk):
+        collections = self.get_object(pk)
+        serializer = CollectionDetailSerializer(collections)
+        return Response(serializer.data)
+
 class StickyNoteList(APIView):
     # guests and logged in users can post new sticky-notes
     def get(self, request):
@@ -226,32 +252,3 @@ class StickyNoteDetail(APIView):
         stickynote = self.get_object(pk)
         stickynote.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-class WinWallBulkUpdate(APIView):
-    permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly,
-        IsOwnerOrReadOnly]
-
-
-    def get_object(self, pk):
-        try:
-            win_wall_sticky_notes = StickyNote.objects.filter(win_wall_id=pk)
-            # self.check_object_permissions(self.request,win_wall_sticky_notes)
-            return win_wall_sticky_notes
-
-        except WinWall.DoesNotExist:
-            raise Http404
-
-    def put(self, request, pk):
-        win_wall_sticky_notes = self.get_object(pk)
-        data = request.data
-        serializer = WinWallBulkUpdateSerializer(
-            instance = win_wall_sticky_notes,
-            data = data,
-            partial = True
-        )
-        
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
