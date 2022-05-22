@@ -67,8 +67,8 @@ class WinWall(models.Model):
 # will need a link to users, winwalls and collections
 class StickyNote(models.Model):
     win_comment = models.CharField(max_length=200)
-    is_approved = models.BooleanField(null = True, blank = True)
-    is_archived = models.BooleanField(null = True, blank = True)
+    is_approved = models.BooleanField(null=True, blank=True)
+    is_archived = models.BooleanField(null=True, blank=True)
     # if we wanted to optionally allow users to enter their name as a serpate field on SN :
     # contributorName = models.CharField(max_length=20, blank=True, default='')
     
