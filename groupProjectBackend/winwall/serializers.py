@@ -40,8 +40,7 @@ class StickyNoteSerializer(serializers.Serializer):
     guest = serializers.SerializerMethodField()
     owner = serializers.ReadOnlyField(source='owner.id', required=False)
     owner_name = serializers.ReadOnlyField(source='owner.username', required=False)
-    is_approved = serializers.BooleanField(required=False)
-    is_archived = serializers.BooleanField(required=False)
+    
    
     # for sticky notename, would need to make this optional via serializer as well 
     # contributorName = serializers.CharField(max_length=20)
