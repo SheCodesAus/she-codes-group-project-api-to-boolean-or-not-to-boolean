@@ -7,6 +7,7 @@ urlpatterns = [
     path('win-wall/<int:pk>/', views.WinWallDetail.as_view()),
     path('sticky-note/', views.StickyNoteList.as_view()),
     path('sticky-note/<int:pk>/', views.StickyNoteDetail.as_view()),
+    # in progress - bulk updates of SN via winwall 
     path('win-wall-notes/<int:pk>/', views.WinWallBulkUpdate.as_view()),
     ]
 
