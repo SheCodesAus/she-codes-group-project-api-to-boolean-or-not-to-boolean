@@ -53,17 +53,15 @@ class StickyNoteDetailSerializer(StickyNoteSerializer):
         is_live =  self.get_win_wall_live(obj)
         if is_live == 'Live':
             return 'Live'
-        elif is_live == 'Closed':
+        elif is_live == 'Closed' and obj.is_approved == False and obj.is_archived == False:
             return 'Unapproved'
-        elif obj.is_approved == True and is_live == 'Closed':
+        elif obj.is_approved == True and is_live == 'Closed' and obj.is_archived == False:
             return 'Approved'
-        elif obj.is_archived == True:
-            return 'Archived'
         elif obj.is_approved == True and obj.is_archived == True:
             return 'Archived'
         elif obj.is_approved == True and obj.is_archived == False:
             return 'Approved'
-        elif obj.is_approved == False:
+        elif obj.is_approved == False and obj.is_archived == False:
             return 'Unapproved'
 
 
