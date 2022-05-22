@@ -4,6 +4,14 @@ from .models import SheCodesUser
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
+
+
+# class SheCodesGuestUserSerializer(serializers.Serializer):
+#     id = serializers.ReadOnlyField()
+
+#     def create(self, validated_data):
+#         return SheCodesGuestUser.objects.create(**validated_data)
+
 class SheCodesUserSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     username = serializers.CharField(max_length=200)

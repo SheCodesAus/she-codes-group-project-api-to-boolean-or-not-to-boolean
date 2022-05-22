@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+# from django.contrib.auth.models import CustomUser   
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -9,3 +10,10 @@ class SheCodesUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+# class SheCodesGuestUser(CustomUser):
+#     username = models.TextField(null=True, blank=True)
+    
+
+#     def __str__(self):
+#         return self.username
