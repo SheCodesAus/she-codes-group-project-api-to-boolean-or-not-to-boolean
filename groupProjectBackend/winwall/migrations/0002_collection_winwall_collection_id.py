@@ -23,11 +23,5 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField()),
                 ('user_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
-        ),
-        migrations.AddField(
-            model_name='winwall',
-            name='collection_id',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='winwall.collection'),
-            preserve_default=False,
-        ),
+        )
     ]

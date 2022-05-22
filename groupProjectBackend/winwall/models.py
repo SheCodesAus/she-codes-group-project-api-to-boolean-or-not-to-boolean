@@ -38,8 +38,7 @@ class WinWall(models.Model):
         end_time = self.end_date 
         if end_time == None or '':
             end_time = datetime.max()
-        print(today)
-        print(timezone)
+       
        
         if end_time > today:
             return True
@@ -55,8 +54,10 @@ class WinWall(models.Model):
     collection_id = models.ForeignKey(
         'Collection',on_delete=models.CASCADE, null = True, blank =True
         )
-    def get_user_or_anonymous():
-   
+
+
+def get_user_or_anonymous():
+
     try:
         # return get_user_model()
         print(settings.AUTH_USER_MODEL)
