@@ -48,9 +48,9 @@ class CollectionList(APIView):
         
 class CollectionDetail(APIView):
     
-    def get(self, request):
-        collections = CollectionDetail.objects.all()
-        serializer = CollectionDetailSerializer(collections, many=True)
+    def get(self, request, pk):
+        collection = Collection.objects.all()
+        serializer = CollectionDetailSerializer(collection, many=False)
         return Response(serializer.data)
 
     def post(self, request):

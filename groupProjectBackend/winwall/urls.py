@@ -17,9 +17,10 @@ urlpatterns = [
     path('sticky-note/<int:pk>/', views.StickyNoteDetail.as_view()),
     # in progress - bulk updates of SN via winwall 
     path('win-wall-notes/<int:pk>/', views.WinWallBulkUpdate.as_view()),
-    
+    # collections
     path('collections/', views.CollectionList.as_view()),
-    path('collection/<slug:slug>/', views.CollectionDetail.as_view()),
+    path('collection/<int:pk>/', views.CollectionDetail.as_view()),
+
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -12,7 +12,8 @@ class CollectionSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=200)
     image = serializers.URLField()
     is_exported = serializers.BooleanField()
-    slug = serializers.SlugField()
+    # url = serializers.URLField()
+    # slug = serializers.SlugField(*args, **kwargs)
     user_id = serializers.ReadOnlyField(source='user_id.id')
 
     def create(self, validated_data):
@@ -25,7 +26,7 @@ class CollectionDetailSerializer(CollectionSerializer):
         instance.title = validated_data.get('title', instance.title)
         instance.image = validated_data.get('image', instance.image)
         instance.is_exported = validated_data.get('is_exported', instance.is_exported)
-        instance.slug = validated_data.get('slug', instance.slug)
+        # instance.slug = validated_data.get('slug', instance.slug)
         
         instance.save() 
         return instance

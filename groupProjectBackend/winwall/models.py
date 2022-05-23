@@ -5,20 +5,22 @@ from django.forms import CharField
 from django.conf import settings
 from datetime import datetime
 from django.utils import timezone
+from django.urls import reverse
+
 
 class Collection(models.Model):
     title = models.CharField(max_length=200)
     image = models.URLField()
     is_exported = models.BooleanField()
-    slug = models.SlugField()
-
+    # url = models.URLField()
+    # slug = models.SlugField()
     user_id = models.ForeignKey(
         get_user_model(),
         on_delete = models.CASCADE,
         )
 
-    def __str__(self):
-        return self.title
+    # def __str__(self):
+    #     return self.title
 
 class WinWall(models.Model):
     title = models.CharField(max_length=200)
