@@ -198,7 +198,7 @@ class CollectionDetail(APIView):
         collections = self.get_object(pk)
         data = request.data
         serializer = CollectionDetailSerializer(
-            instance=collection,
+            instance=collections,
             data=data,
             partial=True
         )
@@ -237,6 +237,9 @@ class StickyNoteList(APIView):
         )
 
 class StickyNoteDetail(APIView):
+
+    # todo: sticky notes can be edited by owner or Admin 
+    # sticky notes can only be approved or archved by admin 
     permission_classes = [
         IsAdminUser
         ]
