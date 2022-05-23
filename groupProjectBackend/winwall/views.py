@@ -35,6 +35,11 @@ class AdminWinWallList(APIView):
         IsAdminUser
         ]
 
+class WinWallList(APIView):
+    
+    # I can see the winwall list when loged off but I can't post/create a project unless logged in.
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def get(self, request):
         win_walls = WinWall.objects.all()
         serializer = WinWallSerializer(win_walls, many=True)
@@ -188,6 +193,25 @@ class CollectionDetail(APIView):
         collections = self.get_object(pk)
         serializer = CollectionDetailSerializer(collections)
         return Response(serializer.data)
+      
+    def put(self, request, pk):
+        collections = self.get_object(pk)
+        data = request.data
+        serializer = CollectionDetailSerializer(
+            instance=collection,
+            data=data,
+            partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+                )
+        return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST)
+      
 
 class StickyNoteList(APIView):
     # guests and logged in users can post new sticky-notes

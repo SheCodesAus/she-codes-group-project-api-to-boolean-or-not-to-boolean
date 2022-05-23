@@ -13,12 +13,12 @@ urlpatterns = [
     path('win-wall/<int:pk>/', views.SheCoderWinWallDetailView.as_view()),
     # in progress - bulk updates of SN via winwall 
     path('win-wall-notes/<int:pk>/', views.WinWallBulkUpdate.as_view()),
-
     # general users & admins view
     path('sticky-notes/', views.StickyNoteList.as_view()),
     # admin only view
     path('sticky-note/<int:pk>/', views.StickyNoteDetail.as_view()),
-
+    # in progress - bulk updates of SN via winwall 
+    path('win-wall-notes/<int:pk>/', views.WinWallBulkUpdate.as_view()),
     # admin / approver level only access for collections
     path('collections/', views.CollectionList.as_view()),
     path('collection/<int:pk>/', views.CollectionDetail.as_view()),
