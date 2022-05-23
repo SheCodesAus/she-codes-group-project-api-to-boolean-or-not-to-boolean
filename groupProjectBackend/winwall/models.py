@@ -28,11 +28,6 @@ class WinWall(models.Model):
     start_date = models.DateTimeField(default=timezone.now, null = True, blank = True)
     end_date = models.DateTimeField(null = True, blank = True)
     is_exported = models.BooleanField()
-
-#   Add FK  
-    # sticky_note = models.ForeignKey(
-    #     'StickyNote',on_delete=models.CASCADE,
-    #     )
     
     def is_open(self):
         today = datetime.now()
@@ -40,8 +35,7 @@ class WinWall(models.Model):
         end_time = self.end_date 
         if end_time == None or '':
             end_time = datetime.max()
-       
-       
+        
         if end_time > today:
             return True
         else:
@@ -53,10 +47,13 @@ class WinWall(models.Model):
         related_name='user_win_walls'
         )
 
-    collection_id = models.ForeignKey(
-        'Collection',on_delete=models.CASCADE, null = True, blank =True
+    collection = models.ForeignKey(
+        'Collection',
+        on_delete=models.CASCADE, 
+        null = True, 
+        blank = True,
+        related_name='win_wall_collections'
         )
-
 
 def get_user_or_anonymous():
 
