@@ -132,7 +132,6 @@ class WinWallBulkUpdate(APIView):
     def get_object(self, pk):
         try:
             win_wall_sticky_notes = StickyNote.objects.filter(win_wall_id=pk)
-            # self.check_object_permissions(self.request,win_wall_sticky_notes)
             return win_wall_sticky_notes
 
         except WinWall.DoesNotExist:
@@ -142,13 +141,19 @@ class WinWallBulkUpdate(APIView):
         win_wall_sticky_notes = self.get_object(pk)
         data = request.data
         serializer = WinWallBulkUpdateSerializer(
-            instance = win_wall_sticky_notes,
             data = data,
-            partial = True
+          
         )
-        
+
         if serializer.is_valid():
-            serializer.save()
+            approve = serializer.validated_data.get('bulk_approve')
+            archive = serializer.validated_data.get('bulk_archive')
+            for note in win_wall_sticky_notes:
+                if approve != None:
+                    note.is_approved = approve
+                if archive != None:
+                    note.is_archived = archive
+                note.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -237,6 +242,9 @@ class StickyNoteList(APIView):
         )
 
 class StickyNoteDetail(APIView):
+
+    # todo: sticky notes can be edited by owner or Admin 
+    # sticky notes can only be approved or archved by admin 
     permission_classes = [
         IsAdminUser
         ]
