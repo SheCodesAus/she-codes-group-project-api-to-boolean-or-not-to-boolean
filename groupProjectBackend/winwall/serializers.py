@@ -7,6 +7,31 @@ from django.utils import timezone
 from unicodedata import category
 from django.forms import ValidationError
 
+class CollectionSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    title = serializers.CharField(max_length=200)
+    image = serializers.URLField()
+    is_exported = serializers.BooleanField()
+    slug = serializers.SlugField()
+    user_id = serializers.ReadOnlyField(source='user_id.id')
+
+    def create(self, validated_data):
+        return Collection.objects.create(**validated_data)
+
+
+class CollectionDetailSerializer(CollectionSerializer):
+        
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.image = validated_data.get('image', instance.image)
+        instance.is_exported = validated_data.get('is_exported', instance.is_exported)
+        instance.slug = validated_data.get('slug', instance.slug)
+        
+        instance.save() 
+        return instance
+
+
+
 
 class StickyNoteSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
@@ -95,16 +120,11 @@ class WinWallSerializer(serializers.Serializer):
 
 # in progress - update all SN via WW 
 class WinWallBulkUpdateSerializer(serializers.Serializer):
-    # bulk_approve = serializers.BooleanField()
-    # bulk_archive = serializers.BooleanField()
 
-    #  nice to have - add sum of approved or archived sticky notes 
-    def update(self, instance, validated_data):
-        for note in instance:
-            note.is_approved = validated_data.get('bulk_approve', note.is_approved)
-            note.is_archived = validated_data.get('bulk_archive', note.is_archived)
-            note.save()
-        return instance
+    # bulk approve or archive sticky notes via the winwall, only as an admin 
+
+    bulk_approve = serializers.BooleanField(required=False)
+    bulk_archive = serializers.BooleanField(required=False)
 
 
 #fixed serializer
@@ -126,28 +146,4 @@ class WinWallDetailSerializer(WinWallSerializer):
         instance.save()
         return instance
 
-class CollectionSerializer(serializers.Serializer):
-    id = serializers.ReadOnlyField()
-    title = serializers.CharField(max_length=200)
-    image = serializers.URLField()
-    is_exported = serializers.BooleanField()
-    # url = serializers.URLField()
-    # slug = serializers.SlugField(*args, **kwargs)
-    user_id = serializers.ReadOnlyField(source='user_id.id')
-
-    def create(self, validated_data):
-        return Collection.objects.create(**validated_data)
-    
-
-class CollectionDetailSerializer(CollectionSerializer):
-    winwalls = WinWallSerializer(many=True, read_only=True)
-
-    def update(self, instance, validated_data):
-        instance.title = validated_data.get('title', instance.title)
-        instance.image = validated_data.get('image', instance.image)
-        instance.is_exported = validated_data.get('is_exported', instance.is_exported)
-        # instance.slug = validated_data.get('slug', instance.slug)
-        
-        instance.save() 
-        return instance
 
