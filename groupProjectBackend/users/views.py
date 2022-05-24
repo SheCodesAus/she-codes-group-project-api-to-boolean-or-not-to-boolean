@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from django.contrib.auth import logout 
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
+from .permissions import IsSuperUser
 
 
 
@@ -90,4 +91,27 @@ class SheCodesUserDetail(APIView):
         user = self.get_object(pk)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UpdateToAdminUserView(APIView):
+    # this view allows the super user to make a user an admin
+    permission_classes = [IsSuperUser]
+    def get_object(self, pk):
+        try:
+            return SheCodesUser.objects.get(pk=pk)
+        except SheCodesUser.DoesNotExist:
+            raise Http404
+
+    def put(self, request, pk):
+        user = self.get_object(pk)
+        data = request.data
+        serializer = SheCodesUserDetailSerializer(
+            instance=user,
+            data=data,
+            partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -84,3 +84,11 @@ class SheCodesUserDetailSerializer(ViewSheCodesUserSerializer):
             instance.social_link = validated_data.get('social_link', instance.social_link)
             instance.save()
             return instance
+
+
+class UpdateUserToAdminSerializer(serializers.Serializer):
+    is_shecodes_admin = serializers.BooleanField()
+    def update(self, instance, validated_data):
+        instance.is_shecodes_admin = validated_data.get('is_shecodes_admin',instance.is_shecodes_admin)
+        instance.save()
+        return instance

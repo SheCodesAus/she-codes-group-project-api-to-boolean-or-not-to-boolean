@@ -7,6 +7,8 @@ class SheCodesUser(AbstractUser):
     avatar = models.URLField(null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
     social_link = models.URLField(null=True, blank=True)
+    is_approver = models.BooleanField(default=False)
+    is_shecodes_admin = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username
