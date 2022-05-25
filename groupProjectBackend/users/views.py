@@ -1,5 +1,5 @@
 from .models import SheCodesUser
-from .serializers import SheCodesUserSerializer, SheCodesUserDetailSerializer, ViewSheCodesUserSerializer
+from .serializers import SheCodesUserSerializer, SheCodesUserDetailSerializer, ViewSheCodesUserSerializer, MakeUserAdminOrApproverDetailSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework import permissions, status, generics
@@ -10,8 +10,6 @@ from django.contrib.auth import logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from .permissions import IsSuperUser
-
-
 
 class SheCodesUserLogout(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -43,7 +41,7 @@ class SheCodesUserList(APIView):
 
     def get(self, request):
         users = SheCodesUser.objects.all()
-        serializer = SheCodesUserSerializer(users, many=True)
+        serializer = ViewSheCodesUserSerializer(users, many=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -92,9 +90,14 @@ class SheCodesUserDetail(APIView):
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+# ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 
-class UpdateToAdminUserView(APIView):
-    # this view allows the super user to make a user an admin
+# Authorisation Views:
+# Super User can make someone an Admin or an Approver
+class UpdateToAdminOrApproverUserView(APIView):
+    # this view allows the super user to make a user an admin or approver
     permission_classes = [IsSuperUser]
     def get_object(self, pk):
         try:
@@ -105,7 +108,7 @@ class UpdateToAdminUserView(APIView):
     def put(self, request, pk):
         user = self.get_object(pk)
         data = request.data
-        serializer = SheCodesUserDetailSerializer(
+        serializer = MakeUserAdminOrApproverDetailSerializer(
             instance=user,
             data=data,
             partial=True

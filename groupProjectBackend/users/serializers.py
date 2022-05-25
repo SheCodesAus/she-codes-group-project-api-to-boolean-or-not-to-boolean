@@ -1,16 +1,9 @@
+from xmlrpc.client import Boolean
 from django.forms import CharField
 from rest_framework import serializers
 from .models import SheCodesUser
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
-
-
-
-# class SheCodesGuestUserSerializer(serializers.Serializer):
-#     id = serializers.ReadOnlyField()
-
-#     def create(self, validated_data):
-#         return SheCodesGuestUser.objects.create(**validated_data)
 
 class SheCodesUserSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
@@ -69,6 +62,8 @@ class ViewSheCodesUserSerializer(serializers.Serializer):
     avatar = serializers.URLField()
     bio = serializers.CharField(max_length=600)
     social_link = serializers.URLField()
+    is_shecodes_admin = serializers.BooleanField()
+    is_approver = serializers.BooleanField()
 
     def create(self, validated_data):
         return SheCodesUser.objects.create(**validated_data)
@@ -82,13 +77,30 @@ class SheCodesUserDetailSerializer(ViewSheCodesUserSerializer):
             instance.avatar = validated_data.get('avatar', instance.avatar)
             instance.bio = validated_data.get('bio', instance.bio)
             instance.social_link = validated_data.get('social_link', instance.social_link)
+            # instance.is_shecodes_admin = validated_data('is_shecodes_admin', instance.is_shecodes_admin)
             instance.save()
             return instance
 
-
-class UpdateUserToAdminSerializer(serializers.Serializer):
+# Authorisation Specific Serializers:
+# API view which allows ONLY the super admin to make a user an admin
+class MakeUserAdminOrApproverDetailView(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    first_name = serializers.CharField(max_length=40)
+    last_name = serializers.CharField(max_length=40)
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=SheCodesUser.objects.all())]
+        )
     is_shecodes_admin = serializers.BooleanField()
+    is_approver = serializers.BooleanField()
+
+    def create(self, validated_data):
+        return SheCodesUser.objects.create(**validated_data)
+class MakeUserAdminOrApproverDetailSerializer(MakeUserAdminOrApproverDetailView):
+    is_shecodes_admin = serializers.BooleanField()
+
     def update(self, instance, validated_data):
         instance.is_shecodes_admin = validated_data.get('is_shecodes_admin',instance.is_shecodes_admin)
+        instance.is_approver = validated_data.get('is_approver',instance.is_approver)
         instance.save()
         return instance
