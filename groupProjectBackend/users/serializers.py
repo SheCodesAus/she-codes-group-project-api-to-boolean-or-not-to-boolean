@@ -82,7 +82,6 @@ class SheCodesUserDetailSerializer(ViewSheCodesUserSerializer):
             return instance
 
 # Authorisation Specific Serializers:
-# API view which allows ONLY the super admin to make a user an admin
 class IsAdminOrApproverDetailView(serializers.Serializer):
     id = serializers.ReadOnlyField()
     first_name = serializers.CharField(max_length=40)
@@ -108,7 +107,7 @@ class MakeUserAdminOrApproverDetailSerializer(IsAdminOrApproverDetailView):
         return instance
 
 class ChangeUserToApproverDetailSerializer(IsAdminOrApproverDetailView):
-    # is_approver = serializers.BooleanField()
+    is_approver = serializers.BooleanField()
 
     def update(self, instance, validated_data):
         instance.is_approver = validated_data.get('is_approver',instance.is_approver)

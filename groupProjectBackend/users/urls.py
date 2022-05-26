@@ -9,7 +9,7 @@ urlpatterns = [
     path('<int:pk>/', views.SheCodesUserDetail.as_view()),
     path('authenticate/', views.CustomObtainAuthToken.as_view()),
     path('<int:pk>/superuser/add-auth-level/', views.UpdateToAdminOrApproverUserView.as_view()),
-    path('<int:pk>/shecodes-admin/add-approver/', views.ChangeUsertoApproverView.as_view()),
+    path('<int:pk>/admin-add-approver/', views.ChangeUsertoApproverView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
