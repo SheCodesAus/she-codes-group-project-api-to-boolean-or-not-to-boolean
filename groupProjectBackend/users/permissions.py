@@ -7,10 +7,4 @@ class IsSuperUser(permissions.IsAdminUser):
 
 class IsSuperUserOrAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
-        logged_in_user = SheCodesUser.objects.get(pk=request.user)
-        return bool(request.user and (request.user.is_superuser or logged_in_user.is_shecodes_admin))
-
-class IsUserAnApprover(permissions.BasePermission):
-    def has_permission(self, request, view):
-        logged_in_user = SheCodesUser.objects.get(pk=request.user)
-        return bool(request.user and logged_in_user.is_approver)
+        return bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin))
