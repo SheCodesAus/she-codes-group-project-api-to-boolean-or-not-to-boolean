@@ -2,10 +2,6 @@ from rest_framework import permissions
 from .models import SheCodesUser
 
 class IsSuperUser(permissions.IsAdminUser):
-    """
-    For use with admin-level access views.
-    """
-
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_superuser)
 
