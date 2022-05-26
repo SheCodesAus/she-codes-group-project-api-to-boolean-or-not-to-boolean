@@ -8,14 +8,22 @@ from django.shortcuts import render
 from django.http import Http404
 from django.contrib.auth.models import AnonymousUser
 from rest_framework import status, permissions
-from .permissions import IsOwnerOrReadOnly, IsAdminUserOrReadOnly, WinWallOwnerWritePermission
+from .permissions import IsOwnerOrReadOnly, IsAdminUserOrReadOnly, WinWallOwnerWritePermission, IsSuperUser, IsSuperUserOrAdmin, IsUserAnApprover
 from rest_framework.permissions import BasePermission, IsAdminUser, SAFE_METHODS
 
 class AdminWinWallList(APIView):
     # admin / approver I can get the list of the WinWalls
-    permission_classes = [
-        IsAdminUser
-        ]
+    # permission_classes = [
+    #     IsAdminUser
+    #     ]
+
+    def get_permissions(self):
+        permission_classes = []
+        if self.action == 'create':
+            permission_classes = [IsSuperUser, IsSuperUserOrAdmin]
+        elif self.action == 'update':
+            permission_classes = [IsSuperUserOrAdmin, IsUserAnApprover]
+        return [permission() for permission in permission_classes]
 
     def get(self, request):
         win_walls = WinWall.objects.all()
