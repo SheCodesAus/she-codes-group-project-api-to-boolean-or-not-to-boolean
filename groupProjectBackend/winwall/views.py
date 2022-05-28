@@ -1,36 +1,24 @@
-import collections
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Collection, WinWall, StickyNote
-from .serializers import WinWallSerializer, WinWallDetailSerializer, StickyNoteSerializer, CollectionSerializer, CollectionDetailSerializer, StickyNoteDetailSerializer, WinWallBulkUpdateSerializer
-from unicodedata import category
-from django.shortcuts import render
 from django.http import Http404
 from django.contrib.auth.models import AnonymousUser
+from .models import Collection, WinWall, StickyNote
+from .serializers import WinWallSerializer, WinWallDetailSerializer, StickyNoteSerializer, CollectionSerializer, CollectionDetailSerializer, StickyNoteDetailSerializer, WinWallBulkUpdateSerializer
 from rest_framework import status, permissions
-from .permissions import IsOwnerOrReadOnly, IsAdminUserOrReadOnly, WinWallOwnerWritePermission, IsSuperUser, IsSuperUserOrAdmin, IsUserAnApprover
-from rest_framework.permissions import BasePermission, IsAdminUser, SAFE_METHODS
+from .permissions import WinWallOwnerWritePermission, IsSuperUserOrAdmin, IsUserAnApprover, WinWallOwnerWritePermission
 
 class AdminWinWallList(APIView):
-    # admin / approver I can get the list of the WinWalls
-    # permission_classes = [
-    #     IsAdminUser
-    #     ]
-
-    def get_permissions(self):
-        permission_classes = []
-        if self.action == 'create':
-            permission_classes = [IsSuperUser, IsSuperUserOrAdmin]
-        elif self.action == 'update':
-            permission_classes = [IsSuperUserOrAdmin, IsUserAnApprover]
-        return [permission() for permission in permission_classes]
+    # SuperUser, Admin / Approver can get and post to the list of the WinWalls
+    permission_classes = [
+        IsSuperUserOrAdmin, IsUserAnApprover
+        ]
 
     def get(self, request):
         win_walls = WinWall.objects.all()
         serializer = WinWallSerializer(win_walls, many=True)
         return Response(serializer.data)
 
-    # admin / approver can post new WinWalls
+    # SuperUser, Admin / Approver can post new WinWalls
     def post(self,request):
         serializer = WinWallSerializer(data=request.data)
         if serializer.is_valid():
@@ -45,7 +33,7 @@ class AdminWinWallList(APIView):
             status=status.HTTP_400_BAD_REQUEST)
 
 class SheCoderWinWallList(APIView):
-    # SheCoders who are logged in or not logged in can view entire list of previous WinWalls
+    # Everyone who is logged in or out can get entire list of previous WinWalls
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly
         ]
@@ -55,10 +43,10 @@ class SheCoderWinWallList(APIView):
         serializer = WinWallSerializer(win_walls, many=True)
         return Response(serializer.data)
 
-class AdminWinWallDetailView(APIView, WinWallOwnerWritePermission):
-    # admins or the owner of the WinWall can get, edit and delete
+class AdminWinWallDetailView(APIView):
+    # SuperUser, Admin or Approver of the WinWall can get, edit and delete
     permission_classes = [
-        IsAdminUser or WinWallOwnerWritePermission
+        IsUserAnApprover, WinWallOwnerWritePermission, IsSuperUserOrAdmin
         ]
 
     def get_object(self, pk):
@@ -117,7 +105,7 @@ class SheCoderWinWallDetailView(APIView):
         return Response(serializer.data)
 
 class WinWallBulkUpdate(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperUserOrAdmin]
 
     def get_object(self, pk):
         try:
@@ -148,7 +136,7 @@ class WinWallBulkUpdate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CollectionList(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperUserOrAdmin, IsUserAnApprover]
 
     def get(self, request):
         collections = Collection.objects.all()
@@ -168,7 +156,7 @@ class CollectionList(APIView):
             status=status.HTTP_400_BAD_REQUEST)
         
 class CollectionDetail(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperUserOrAdmin, IsUserAnApprover]
 
     def get_object(self, pk):
         try:
@@ -236,7 +224,7 @@ class StickyNoteDetail(APIView):
     # todo: sticky notes can be edited by owner or Admin 
     # sticky notes can only be approved or archved by admin 
     permission_classes = [
-        IsAdminUser
+        IsSuperUserOrAdmin, IsUserAnApprover
         ]
     
     def get_object(self, pk):
