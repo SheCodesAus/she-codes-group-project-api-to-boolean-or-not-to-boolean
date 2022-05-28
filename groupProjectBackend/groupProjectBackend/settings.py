@@ -15,8 +15,9 @@ import dj_database_url
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+# BASE_DIR = Path(__file__).resolve().parent.parent
+# Alternative BASE_DIR to fix: "'PosixPath' is not iterable" error
+BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -60,6 +61,12 @@ REST_FRAMEWORK = {
 
 }
 
+# Permissions:
+# AllowAny
+# IsAuthenticated
+# IsAdminUser
+# IsAuthenticatedOrReadOnly
+
 AUTH_USER_MODEL = 'users.SheCodesUser'
 
 MIDDLEWARE = [
@@ -101,7 +108,7 @@ WSGI_APPLICATION = 'groupProjectBackend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': str(BASE_DIR / 'db.sqlite3'),
     }
 }
 db_from_env = dj_database_url.config(conn_max_age=500)

@@ -5,7 +5,22 @@ from django.forms import CharField
 from django.conf import settings
 from datetime import datetime
 from django.utils import timezone
+from django.urls import reverse
 
+
+class Collection(models.Model):
+    title = models.CharField(max_length=200)
+    image = models.URLField()
+    is_exported = models.BooleanField()
+    # url = models.URLField()
+    # slug = models.SlugField()
+    user_id = models.ForeignKey(
+        get_user_model(),
+        on_delete = models.CASCADE,
+        )
+
+    def __str__(self):
+        return self.title
 
 class WinWall(models.Model):
     title = models.CharField(max_length=200)
@@ -13,11 +28,6 @@ class WinWall(models.Model):
     start_date = models.DateTimeField(default=timezone.now, null = True, blank = True)
     end_date = models.DateTimeField(null = True, blank = True)
     is_exported = models.BooleanField()
-
-#   Add FK  
-    # sticky_note = models.ForeignKey(
-    #     'StickyNote',on_delete=models.CASCADE,
-    #     )
     
     def is_open(self):
         today = datetime.now()
@@ -25,9 +35,7 @@ class WinWall(models.Model):
         end_time = self.end_date 
         if end_time == None or '':
             end_time = datetime.max()
-        print(today)
-        print(timezone)
-       
+        
         if end_time > today:
             return True
         else:
@@ -39,13 +47,16 @@ class WinWall(models.Model):
         related_name='user_win_walls'
         )
 
-    # auth_Id
+    collection = models.ForeignKey(
+        'Collection',
+        on_delete=models.CASCADE, 
+        null = True, 
+        blank = True,
+        related_name='win_wall_collections'
+        )
 
-    # collection_id = models.ForeignKey(
-    #     'collection',on_delete=models.CASCADE,
-    #     )
 def get_user_or_anonymous():
-   
+
     try:
         # return get_user_model()
         print(settings.AUTH_USER_MODEL)
@@ -56,8 +67,8 @@ def get_user_or_anonymous():
 # will need a link to users, winwalls and collections
 class StickyNote(models.Model):
     win_comment = models.CharField(max_length=200)
-    is_approved = models.BooleanField()
-    is_archived = models.BooleanField()
+    is_approved = models.BooleanField(null=True, blank=True)
+    is_archived = models.BooleanField(null=True, blank=True)
     # if we wanted to optionally allow users to enter their name as a serpate field on SN :
     # contributorName = models.CharField(max_length=20, blank=True, default='')
     
