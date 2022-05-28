@@ -56,6 +56,30 @@ class StickyNoteSerializer(serializers.Serializer):
 
 
 class StickyNoteDetailSerializer(StickyNoteSerializer):
+    sticky_status = serializers.SerializerMethodField()
+
+    def get_sticky_status(self, obj):
+        is_live =  self.get_win_wall_live(obj)
+        if is_live == 'Live':
+            return 'Live'
+        elif is_live == 'Closed' and obj.is_approved == False and obj.is_archived == False:
+            return 'Unapproved'
+        elif obj.is_approved == True and is_live == 'Closed' and obj.is_archived == False:
+            return 'Approved'
+        elif obj.is_approved == True and obj.is_archived == True:
+            return 'Archived'
+        elif obj.is_approved == True and obj.is_archived == False:
+            return 'Approved'
+        elif obj.is_approved == False and obj.is_archived == False:
+            return 'Unapproved'
+
+
+    def update(self, instance, validated_data):
+        instance.win_comment = validated_data.get('win_comment', instance.win_comment)
+        instance.save()
+        return instance 
+
+class AdminStickyNoteDetailSerializer(StickyNoteSerializer):
     is_approved = serializers.BooleanField(required=False)
     is_archived = serializers.BooleanField(required=False)
     sticky_status = serializers.SerializerMethodField()

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.http import Http404
 from django.contrib.auth.models import AnonymousUser
 from .models import Collection, WinWall, StickyNote
-from .serializers import WinWallSerializer, WinWallDetailSerializer, StickyNoteSerializer, CollectionSerializer, CollectionDetailSerializer, StickyNoteDetailSerializer, WinWallBulkUpdateSerializer
+from .serializers import WinWallSerializer, WinWallDetailSerializer, StickyNoteDetailSerializer, StickyNoteSerializer, CollectionSerializer, CollectionDetailSerializer, AdminStickyNoteDetailSerializer, WinWallBulkUpdateSerializer
 from rest_framework import status, permissions
 from .permissions import IsOwnerOrReadOnly, IsSuperUserOrAdmin, WinWallOwnerWritePermission, IsSuperUserOrAdminOrApprover
 
@@ -229,10 +229,52 @@ class StickyNoteList(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-class StickyNoteDetail(APIView):
+class AdminStickyNoteDetail(APIView):
     # sticky notes can only be approved or archved by admin 
     permission_classes = [
         IsSuperUserOrAdminOrApprover
+        ]
+    
+    def get_object(self, pk):
+        try:
+            stickynote = StickyNote.objects.get(pk=pk)
+            self.check_object_permissions(self.request, stickynote)
+            return stickynote
+        except StickyNote.DoesNotExist:
+            raise Http404 
+
+    def get(self, request, pk):
+        stickynote = self.get_object(pk)
+        serializer = AdminStickyNoteDetailSerializer(stickynote)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        stickynote = self.get_object(pk)
+        data = request.data
+        serializer = AdminStickyNoteDetailSerializer(
+            instance=stickynote,
+            data=data,
+            partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+                )
+        return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        stickynote = self.get_object(pk)
+        stickynote.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class StickyNoteDetail(APIView):
+    # sticky notes can only be approved or archved by admin 
+    permission_classes = [
+        IsOwnerOrReadOnly
         ]
     
     def get_object(self, pk):
@@ -265,8 +307,3 @@ class StickyNoteDetail(APIView):
         return Response(
         serializer.errors,
         status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        stickynote = self.get_object(pk)
-        stickynote.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
