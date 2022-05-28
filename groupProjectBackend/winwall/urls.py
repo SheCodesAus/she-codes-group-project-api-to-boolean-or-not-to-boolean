@@ -19,6 +19,8 @@ urlpatterns = [
     path('sticky-note/<int:pk>/', views.StickyNoteDetail.as_view()),
     # in progress - bulk updates of SN via winwall 
     path('win-wall-notes/<int:pk>/', views.WinWallBulkUpdate.as_view()),
+    # general users can view the list of collections
+    path('view-collections/', views.SheCoderCollectionList.as_view()),
     # admin / approver level only access for collections
     path('collections/', views.CollectionList.as_view()),
     path('collection/<int:pk>/', views.CollectionDetail.as_view()),

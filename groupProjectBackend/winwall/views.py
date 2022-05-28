@@ -5,12 +5,12 @@ from django.contrib.auth.models import AnonymousUser
 from .models import Collection, WinWall, StickyNote
 from .serializers import WinWallSerializer, WinWallDetailSerializer, StickyNoteSerializer, CollectionSerializer, CollectionDetailSerializer, StickyNoteDetailSerializer, WinWallBulkUpdateSerializer
 from rest_framework import status, permissions
-from .permissions import WinWallOwnerWritePermission, IsSuperUserOrAdmin, IsUserAnApprover, WinWallOwnerWritePermission
+from .permissions import IsOwnerOrReadOnly, IsSuperUserOrAdmin, WinWallOwnerWritePermission, IsSuperUserOrAdminOrApprover
 
 class AdminWinWallList(APIView):
     # SuperUser, Admin / Approver can get and post to the list of the WinWalls
     permission_classes = [
-        IsSuperUserOrAdmin, IsUserAnApprover
+        IsSuperUserOrAdmin
         ]
 
     def get(self, request):
@@ -32,21 +32,10 @@ class AdminWinWallList(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST)
 
-class SheCoderWinWallList(APIView):
-    # Everyone who is logged in or out can get entire list of previous WinWalls
-    permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly
-        ]
-
-    def get(self, request):
-        win_walls = WinWall.objects.all()
-        serializer = WinWallSerializer(win_walls, many=True)
-        return Response(serializer.data)
-
 class AdminWinWallDetailView(APIView):
     # SuperUser, Admin or Approver of the WinWall can get, edit and delete
     permission_classes = [
-        IsUserAnApprover, WinWallOwnerWritePermission, IsSuperUserOrAdmin
+        WinWallOwnerWritePermission, IsSuperUserOrAdminOrApprover
         ]
 
     def get_object(self, pk):
@@ -83,6 +72,17 @@ class AdminWinWallDetailView(APIView):
         win_wall = self.get_object(pk)
         win_wall.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class SheCoderWinWallList(APIView):
+    # Everyone who is logged in or out can get entire list of previous WinWalls
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly
+        ]
+
+    def get(self, request):
+        win_walls = WinWall.objects.all()
+        serializer = WinWallSerializer(win_walls, many=True)
+        return Response(serializer.data)
 
 class SheCoderWinWallDetailView(APIView):
     # any user accessing the website can getview WinWalls
@@ -136,7 +136,7 @@ class WinWallBulkUpdate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CollectionList(APIView):
-    permission_classes = [IsSuperUserOrAdmin, IsUserAnApprover]
+    permission_classes = [IsSuperUserOrAdmin]
 
     def get(self, request):
         collections = Collection.objects.all()
@@ -155,8 +155,19 @@ class CollectionList(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST)
         
+class SheCoderCollectionList(APIView):
+    # Everyone who is logged in or out can get entire list of Collections
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly
+        ]
+
+    def get(self, request):
+        collections = Collection.objects.all()
+        serializer = CollectionSerializer(collections, many=True)
+        return Response(serializer.data)
+
 class CollectionDetail(APIView):
-    permission_classes = [IsSuperUserOrAdmin, IsUserAnApprover]
+    permission_classes = [IsSuperUserOrAdmin]
 
     def get_object(self, pk):
         try:
@@ -195,7 +206,6 @@ class CollectionDetail(APIView):
         collections.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
       
-
 class StickyNoteList(APIView):
     # guests and logged in users can post new sticky-notes
     def get(self, request):
@@ -220,11 +230,9 @@ class StickyNoteList(APIView):
         )
 
 class StickyNoteDetail(APIView):
-
-    # todo: sticky notes can be edited by owner or Admin 
     # sticky notes can only be approved or archved by admin 
     permission_classes = [
-        IsSuperUserOrAdmin, IsUserAnApprover
+        IsSuperUserOrAdminOrApprover
         ]
     
     def get_object(self, pk):

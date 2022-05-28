@@ -16,7 +16,14 @@ class IsUserAnApprover(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return obj.owner == request.user
+        return bool(request.user and request.user.is_approver)
+    # Checks the logged in user is an Approver
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_approver)
+
+class IsSuperUserOrAdminOrApprover(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin)) or bool(request.user and request.user.is_approver)
 
 # Detailed Authentication - Based on User ID that is associated with task
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -34,4 +41,15 @@ class WinWallOwnerWritePermission(permissions.BasePermission):
         if request.method in SAFE_METHODS:
             return True
 
-        return obj.owner == request.user
+        return obj.owner == request.user or bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin))
+
+
+class StickyNoteOwnerWritePermission(permissions.BasePermission):
+    # Added feature enabling only the admins or the author of the sticky note to edit
+    message = "Only the author of this sticky note can edit."
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+
+        return obj.owner == request.user or bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin or (request.user.is_approver and obj.win_wall.owner == request.user)))
