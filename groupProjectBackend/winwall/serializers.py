@@ -1,11 +1,6 @@
 from rest_framework import serializers
 from .models import WinWall, StickyNote, Collection
 from users.models import SheCodesUser
-## created serializers
-from datetime import datetime
-from django.utils import timezone
-# from unicodedata import category
-from django.forms import ValidationError
 
 class CollectionSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
@@ -18,20 +13,14 @@ class CollectionSerializer(serializers.Serializer):
     def create(self, validated_data):
         return Collection.objects.create(**validated_data)
 
-
 class CollectionDetailSerializer(CollectionSerializer):
-        
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
         instance.image = validated_data.get('image', instance.image)
         instance.is_exported = validated_data.get('is_exported', instance.is_exported)
-        instance.slug = validated_data.get('slug', instance.slug)
-        
+        instance.slug = validated_data.get('slug', instance.slug)        
         instance.save() 
         return instance
-
-
-
 
 class StickyNoteSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
@@ -41,7 +30,6 @@ class StickyNoteSerializer(serializers.Serializer):
     owner = serializers.ReadOnlyField(source='owner.id', required=False)
     owner_name = serializers.ReadOnlyField(source='owner.username', required=False)
     
-   
     # for sticky notename, would need to make this optional via serializer as well 
     # contributorName = serializers.CharField(max_length=20)
 
