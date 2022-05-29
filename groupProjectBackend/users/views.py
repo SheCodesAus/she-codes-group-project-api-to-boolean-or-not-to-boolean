@@ -8,7 +8,7 @@ from django.contrib.auth import logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from .models import SheCodesUser
-from .serializers import SheCodesUserSerializer, SheCodesUserDetailSerializer, ViewSheCodesUserSerializer, MakeUserAdminOrApproverDetailSerializer, ChangeUserToApproverDetailSerializer
+from .serializers import SheCodesUserSerializer, SheCodesUserDetailSerializer, ViewSheCodesUserSerializer, MakeUserAdminOrApproverDetailSerializer, ChangeUserToApproverDetailSerializer, DisplaySheCodesUsernameDetailSerializer
 from .permissions import IsSuperUser, IsSuperUserOrAdmin, IsProfileOwnerOrAdminOrSuperUserOrReadOnly
 
 class CustomObtainAuthToken(ObtainAuthToken):
@@ -54,6 +54,15 @@ class SheCodesUserList(APIView):
                 'data': serializer.data
             })
         return Response(serializer.errors)
+
+class SuperUserOrAdminSheCodesUsernameList(APIView):
+    permission_classes = [IsSuperUserOrAdmin]
+    queryset = SheCodesUser.objects.all()
+
+    def get(self, request):
+        users = SheCodesUser.objects.all()
+        serializer = DisplaySheCodesUsernameDetailSerializer(users, many=True)
+        return Response(serializer.data)
 
 class SheCodesUserDetail(APIView):
     permission_classes = [
