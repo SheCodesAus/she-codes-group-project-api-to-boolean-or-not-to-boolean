@@ -9,6 +9,7 @@ urlpatterns = [
     path('<int:pk>/', views.SheCodesUserDetail.as_view()),
     path('authenticate/', views.CustomObtainAuthToken.as_view()),
     path('shecodes-user-list/', views.SuperUserOrAdminSheCodesUsernameList.as_view()),
+    path('shecodes-user-list/<int:pk>/', views.SheCoderDataPermissions.as_view()),
     path('<int:pk>/superuser/add-auth-level/', views.UpdateToAdminOrApproverUserView.as_view()),
     path('<int:pk>/admin-add-approver/', views.ChangeUsertoApproverView.as_view()),
 ]
