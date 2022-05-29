@@ -9,6 +9,7 @@ class SheCodesUser(AbstractUser):
     # Authentication Levels:
     is_approver = models.BooleanField(default=False)
     is_shecodes_admin = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username

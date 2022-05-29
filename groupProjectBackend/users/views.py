@@ -1,5 +1,3 @@
-from .models import SheCodesUser
-from .serializers import SheCodesUserSerializer, SheCodesUserDetailSerializer, ViewSheCodesUserSerializer, MakeUserAdminOrApproverDetailSerializer, ChangeUserToApproverDetailSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework import permissions, status
@@ -9,7 +7,9 @@ from rest_framework.response import Response
 from django.contrib.auth import logout 
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
-from .permissions import IsSuperUser, IsSuperUserOrAdmin
+from .models import SheCodesUser
+from .serializers import SheCodesUserSerializer, SheCodesUserDetailSerializer, ViewSheCodesUserSerializer, MakeUserAdminOrApproverDetailSerializer, ChangeUserToApproverDetailSerializer
+from .permissions import IsSuperUser, IsSuperUserOrAdmin, IsProfileOwnerOrAdminOrSuperUserOrReadOnly
 
 class CustomObtainAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
@@ -96,7 +96,7 @@ class SheCodesUserDetail(APIView):
 # Authorisation Views:
 # Super User can make someone an Admin or an Approver
 class UpdateToAdminOrApproverUserView(APIView):
-    # this view only allows the super user to make a user an admin or approver
+    # This view only allows the SuperUsers to make a User an Admin or Approver
     permission_classes = [IsSuperUser]
     def get_object(self, pk):
         try:
@@ -119,7 +119,7 @@ class UpdateToAdminOrApproverUserView(APIView):
 
 
 class ChangeUsertoApproverView(APIView):
-    # this view allows an admin or the superuser to make a general user an approver
+    # This view allows an Admin or the SuperUser to make a general user an approver
     permission_classes = [IsSuperUserOrAdmin]
     def get_object(self, pk):
         try:
