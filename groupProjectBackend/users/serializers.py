@@ -7,7 +7,10 @@ from django.contrib.auth.password_validation import validate_password
 
 class SheCodesUserSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
-    username = serializers.CharField(max_length=200)
+    username = serializers.CharField(max_length=200,
+        required=True,
+        validators=[UniqueValidator(queryset=SheCodesUser.objects.all())]
+        )
     first_name = serializers.CharField(max_length=200)
     last_name = serializers.CharField(max_length=200)
     email = serializers.EmailField(
@@ -54,7 +57,10 @@ class ViewSheCodesUserSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     first_name = serializers.CharField(max_length=40)
     last_name = serializers.CharField(max_length=40)
-    username = serializers.CharField(max_length=60)
+    username = serializers.CharField(max_length=60,
+        required=True,
+        validators=[UniqueValidator(queryset=SheCodesUser.objects.all())]
+        )
     email = serializers.EmailField(
         required=True,
         validators=[UniqueValidator(queryset=SheCodesUser.objects.all())]
@@ -81,6 +87,19 @@ class SheCodesUserDetailSerializer(ViewSheCodesUserSerializer):
             instance.save()
             return instance
 
+# Used to Display Full List of Users
+class DisplaySheCodesUsernameDetailSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    username = serializers.CharField()
+
+# Used to gather permission levels for React drop-down
+class NameAndPermissionDataDetailSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    username = serializers.CharField()
+    is_superuser = serializers.BooleanField()
+    is_shecodes_admin = serializers.BooleanField()
+    is_approver = serializers.BooleanField()
+
 # Authorisation Specific Serializers:
 class IsAdminOrApproverDetailView(serializers.Serializer):
     # This view is ONLY for the SuperUser or Admin to view whether a User is:
@@ -92,6 +111,7 @@ class IsAdminOrApproverDetailView(serializers.Serializer):
         required=True,
         validators=[UniqueValidator(queryset=SheCodesUser.objects.all())]
         )
+    is_superuser = serializers.BooleanField()
     is_shecodes_admin = serializers.BooleanField()
     is_approver = serializers.BooleanField()
 

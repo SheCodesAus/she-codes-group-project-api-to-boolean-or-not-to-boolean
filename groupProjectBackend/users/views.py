@@ -8,7 +8,7 @@ from django.contrib.auth import logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from .models import SheCodesUser
-from .serializers import SheCodesUserSerializer, SheCodesUserDetailSerializer, ViewSheCodesUserSerializer, MakeUserAdminOrApproverDetailSerializer, ChangeUserToApproverDetailSerializer
+from .serializers import SheCodesUserSerializer, SheCodesUserDetailSerializer, ViewSheCodesUserSerializer, MakeUserAdminOrApproverDetailSerializer, ChangeUserToApproverDetailSerializer, DisplaySheCodesUsernameDetailSerializer, NameAndPermissionDataDetailSerializer
 from .permissions import IsSuperUser, IsSuperUserOrAdmin, IsProfileOwnerOrAdminOrSuperUserOrReadOnly
 
 class CustomObtainAuthToken(ObtainAuthToken):
@@ -54,6 +54,31 @@ class SheCodesUserList(APIView):
                 'data': serializer.data
             })
         return Response(serializer.errors)
+
+# Displays Full List of Users - their ID & Username
+class SuperUserOrAdminSheCodesUsernameList(APIView):
+    permission_classes = [IsSuperUserOrAdmin]
+    queryset = SheCodesUser.objects.all()
+
+    def get(self, request):
+        users = SheCodesUser.objects.all()
+        serializer = DisplaySheCodesUsernameDetailSerializer(users, many=True)
+        return Response(serializer.data)
+
+# Displays the permission data for User associated with the selected ID from the React drop-down
+class SheCoderDataPermissions(APIView):
+    permission_classes = [IsSuperUserOrAdmin]
+
+    def get_object(self, pk):
+        try:
+            return SheCodesUser.objects.get(pk=pk)
+        except SheCodesUser.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        user = self.get_object(pk)
+        serializer = NameAndPermissionDataDetailSerializer(user)
+        return Response(serializer.data)
 
 class SheCodesUserDetail(APIView):
     permission_classes = [
