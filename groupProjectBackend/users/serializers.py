@@ -62,6 +62,7 @@ class ViewSheCodesUserSerializer(serializers.Serializer):
     avatar = serializers.URLField()
     bio = serializers.CharField(max_length=600)
     social_link = serializers.URLField()
+    is_superuser = serializers.BooleanField()
     is_shecodes_admin = serializers.BooleanField()
     is_approver = serializers.BooleanField()
 
@@ -77,12 +78,13 @@ class SheCodesUserDetailSerializer(ViewSheCodesUserSerializer):
             instance.avatar = validated_data.get('avatar', instance.avatar)
             instance.bio = validated_data.get('bio', instance.bio)
             instance.social_link = validated_data.get('social_link', instance.social_link)
-            # instance.is_shecodes_admin = validated_data('is_shecodes_admin', instance.is_shecodes_admin)
             instance.save()
             return instance
 
 # Authorisation Specific Serializers:
 class IsAdminOrApproverDetailView(serializers.Serializer):
+    # This view is ONLY for the SuperUser or Admin to view whether a User is:
+        # A SuperUser, Admin, Approver or User
     id = serializers.ReadOnlyField()
     first_name = serializers.CharField(max_length=40)
     last_name = serializers.CharField(max_length=40)
@@ -97,6 +99,7 @@ class IsAdminOrApproverDetailView(serializers.Serializer):
         return SheCodesUser.objects.create(**validated_data)
 
 class MakeUserAdminOrApproverDetailSerializer(IsAdminOrApproverDetailView):
+    # Serializer for SuperUsers only (used to Update a User to an Admin & Approver)
     is_shecodes_admin = serializers.BooleanField()
     is_approver = serializers.BooleanField()
 
@@ -107,6 +110,7 @@ class MakeUserAdminOrApproverDetailSerializer(IsAdminOrApproverDetailView):
         return instance
 
 class ChangeUserToApproverDetailSerializer(IsAdminOrApproverDetailView):
+    # Serializer for SuperUsers/Admins only (used to Update a User to an Approver)
     is_approver = serializers.BooleanField()
 
     def update(self, instance, validated_data):
