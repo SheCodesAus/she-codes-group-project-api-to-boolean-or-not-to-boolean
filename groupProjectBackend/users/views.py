@@ -1,5 +1,3 @@
-from .models import SheCodesUser
-from .serializers import SheCodesUserSerializer, SheCodesUserDetailSerializer, ViewSheCodesUserSerializer, MakeUserAdminOrApproverDetailSerializer, ChangeUserToApproverDetailSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework import permissions, status
@@ -9,7 +7,10 @@ from rest_framework.response import Response
 from django.contrib.auth import logout 
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
-from .permissions import IsSuperUser, IsSuperUserOrAdmin
+from .models import SheCodesUser
+from .serializers import SheCodesUserSerializer, SheCodesUserDetailSerializer, ViewSheCodesUserSerializer, MakeUserAdminOrApproverDetailSerializer, ChangeUserToApproverDetailSerializer
+from .permissions import IsSuperUser, IsSuperUserOrAdmin, IsProfileOwnerOrAdminOrSuperUserOrReadOnly
+
 
 class CustomObtainAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
