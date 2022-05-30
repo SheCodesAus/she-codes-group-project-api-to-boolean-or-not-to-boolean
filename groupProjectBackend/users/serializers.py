@@ -71,6 +71,7 @@ class ViewSheCodesUserSerializer(serializers.Serializer):
     is_superuser = serializers.BooleanField()
     is_shecodes_admin = serializers.BooleanField()
     is_approver = serializers.BooleanField()
+    is_superuser = serializers.ReadOnlyField()
 
     def create(self, validated_data):
         return SheCodesUser.objects.create(**validated_data)
