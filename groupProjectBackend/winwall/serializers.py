@@ -7,20 +7,12 @@ class CollectionSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=200)
     image = serializers.URLField()
     is_exported = serializers.BooleanField()
-    slug = serializers.SlugField()
+    # slug = serializers.SlugField()
     user_id = serializers.ReadOnlyField(source='user_id.id')
 
     def create(self, validated_data):
         return Collection.objects.create(**validated_data)
 
-class CollectionDetailSerializer(CollectionSerializer):
-    def update(self, instance, validated_data):
-        instance.title = validated_data.get('title', instance.title)
-        instance.image = validated_data.get('image', instance.image)
-        instance.is_exported = validated_data.get('is_exported', instance.is_exported)
-        instance.slug = validated_data.get('slug', instance.slug)        
-        instance.save() 
-        return instance
 
 class StickyNoteSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
@@ -116,12 +108,9 @@ class WinWallSerializer(serializers.Serializer):
     end_date = serializers.DateTimeField()
     is_open = serializers.SerializerMethodField()
     is_exported = serializers.BooleanField()
-    # sticky_id = serializers.IntegerField()
-    # user_id = serializers.ReadOnlyField(source='user.id')
     collection_id = serializers.IntegerField()
     owner = serializers.ReadOnlyField(source='owner.id')
-    
-    # auth_id
+
     def get_is_open(self, obj):
         return obj.is_open()
     
@@ -148,13 +137,20 @@ class WinWallDetailSerializer(WinWallSerializer):
         instance.image = validated_data.get('image', instance.image)
         instance.start_date = validated_data.get('start_date', instance.start_date)
         instance.end_date = validated_data.get('end_date', instance.end_date)
+        instance.is_open = validated_data.get('is_open', instance.is_open)
         instance.is_exported = validated_data.get('is_exported', instance.is_exported)
         instance.owner = validated_data.get('owner', instance.owner)
-        # auth_Id
-        instance.collection_id = validated_data.get('collection_id', instance.collection_id)
-        # instance.sticky_id = validated_data.get('sticky_id', instance.sticky_id)        
 
         instance.save()
         return instance
 
+class CollectionDetailSerializer(CollectionSerializer):
+    win_wall_collections = WinWallSerializer(many=True, read_only=True)
 
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.image = validated_data.get('image', instance.image)
+        instance.is_exported = validated_data.get('is_exported', instance.is_exported)
+        # instance.slug = validated_data.get('slug', instance.slug)        
+        instance.save() 
+        return instance

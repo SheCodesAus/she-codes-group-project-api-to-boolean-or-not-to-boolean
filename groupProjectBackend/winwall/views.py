@@ -61,7 +61,7 @@ class AdminWinWallDetailView(APIView):
             data = data,
             partial = True
         )
-
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -136,7 +136,7 @@ class WinWallBulkUpdate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CollectionList(APIView):
-    permission_classes = [IsSuperUserOrAdmin]
+    # permission_classes = [IsSuperUserOrAdmin]
 
     def get(self, request):
         collections = Collection.objects.all()
@@ -157,9 +157,9 @@ class CollectionList(APIView):
         
 class SheCoderCollectionList(APIView):
     # Everyone who is logged in or out can get entire list of Collections
-    permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly
-        ]
+    # permission_classes = [
+    #     permissions.IsAuthenticatedOrReadOnly
+    #     ]
 
     def get(self, request):
         collections = Collection.objects.all()
@@ -167,7 +167,7 @@ class SheCoderCollectionList(APIView):
         return Response(serializer.data)
 
 class CollectionDetail(APIView):
-    permission_classes = [IsSuperUserOrAdmin]
+    # permission_classes = [IsSuperUserOrAdmin]
 
     def get_object(self, pk):
         try:
@@ -191,6 +191,7 @@ class CollectionDetail(APIView):
             data=data,
             partial=True
         )
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(
