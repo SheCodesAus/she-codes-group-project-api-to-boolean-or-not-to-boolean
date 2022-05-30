@@ -93,3 +93,29 @@ class StickyNote(models.Model):
     #     on_delete=models.CASCADE,
     # )
     
+class UserAssignment(models.Model):
+    # assignment used to override user permissions for specific collection and/or win wall 
+    # a single assignment will have a winwall or a collection specified 
+    is_admin = models.BooleanField(null=True, blank=True)
+    is_approver = models.BooleanField(null=True, blank=True)
+
+    assignee = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        related_name='assignments'
+    )
+
+    win_wall = models.ForeignKey(
+        'WinWall',
+        null=True, blank=True,
+        on_delete=models.CASCADE,
+        related_name='assigned_user'
+    )
+
+    collection = models.ForeignKey(
+        'Collection',
+        on_delete=models.CASCADE, 
+        null = True, 
+        blank = True,
+        related_name='assigned_user'
+        )

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import WinWall, StickyNote, Collection
+from .models import WinWall, StickyNote, Collection, UserAssignment
 from users.models import SheCodesUser
 
 class CollectionSerializer(serializers.Serializer):
@@ -153,4 +153,22 @@ class CollectionDetailSerializer(CollectionSerializer):
         instance.is_exported = validated_data.get('is_exported', instance.is_exported)
         # instance.slug = validated_data.get('slug', instance.slug)        
         instance.save() 
+class UserAssignmentsSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    is_admin = serializers.BooleanField(required=False)
+    is_approver = serializers.BooleanField(required=False)
+    assignee_id = serializers.IntegerField()
+    win_wall_id = serializers.IntegerField(required=False)
+    collection_id = serializers.IntegerField(required=False)
+    def create(self, validated_data):
+        return UserAssignment.objects.create(**validated_data)
+
+class UserAssignmentsDetailSerializer(UserAssignmentsSerializer):
+    def update(self, instance, validated_data):
+        instance.is_admin = validated_data.get('is_admin', instance.is_admin)
+        instance.is_approver = validated_data.get('is_approver', instance.is_approver)
+        instance.assignee_id = validated_data.get('assignee_id', instance.assignee_id)
+        instance.win_wall_id = validated_data.get('win_wall_id', instance.win_wall_id)
+        instance.collection_id = validated_data.get('collection_id', instance.collection_id)
+        instance.save()
         return instance
