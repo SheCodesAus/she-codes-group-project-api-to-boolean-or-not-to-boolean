@@ -64,6 +64,7 @@ class ViewSheCodesUserSerializer(serializers.Serializer):
     social_link = serializers.URLField()
     is_shecodes_admin = serializers.BooleanField()
     is_approver = serializers.BooleanField()
+    is_superuser = serializers.ReadOnlyField()
 
     def create(self, validated_data):
         return SheCodesUser.objects.create(**validated_data)

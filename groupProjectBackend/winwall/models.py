@@ -62,6 +62,7 @@ def get_user_or_anonymous():
         return settings.AUTH_USER_MODEL
     except ValueError:
         return  'self'
+        
 class StickyNote(models.Model):
     win_comment = models.CharField(max_length=200)
     is_approved = models.BooleanField(null=True, blank=True)
