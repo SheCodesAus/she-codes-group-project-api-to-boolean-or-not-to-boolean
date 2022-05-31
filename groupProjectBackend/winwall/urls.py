@@ -25,6 +25,8 @@ urlpatterns = [
     # admin / approver level only access for collections
     path('collections/', views.CollectionList.as_view()),
     path('collection/<int:pk>/', views.CollectionDetail.as_view()),
+    path('assignments/', views.UserAssignmentList.as_view()),
+    path('assignment/<int:pk>/', views.UserAssigmentDetail.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -1,5 +1,6 @@
 from rest_framework import permissions
 from users.models import SheCodesUser
+from .models import WinWall
 from rest_framework.permissions import SAFE_METHODS
 
 # Authentication from User Model
@@ -29,6 +30,8 @@ class IsSuperUserOrAdminOrApprover(permissions.BasePermission):
     def has_permission(self, request, view):
         return bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin)) or bool(request.user and request.user.is_approver)
 
+# Detailed Authentication - Based on User ID that is associated with task
+
 class IsOwnerOrReadOnly(permissions.BasePermission):
     # The person performing the action/viewing object is the Owner, otherwise only ReadOnly access
     def has_object_permission(self, request, view, obj):
@@ -39,24 +42,46 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 # Detailed Authentication - Based on User ID that is associated with task
 class WinWallOwnerWritePermission(permissions.BasePermission):
     # Added feature enabling owner of the created WinWall to create, put and delete
+    #updated to allow assignment or approvers or admins to a winwall or collection of winwalls
     message = "Editing Win Wall data is restricted to the administrators & approvers of this site only."
 
     def has_object_permission(self, request, view, obj):
         # GET_METHOD is a tuple that contains get, options and head
+        assignments = request.user.assignments.all()
+        user_has_assignment = any((assignment.win_wall_id == obj.id  or assignment.collection_id == obj.collection.id) and (assignment.is_admin or assignment.is_approver) for assignment in assignments)
+        
         if request.method in SAFE_METHODS:
             return True
 
-        return obj.owner == request.user or bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin))
+        return obj.owner == request.user or user_has_assignment or bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin))
+
+
+class WinWallBulkUpdatePermission(permissions.BasePermission):
+    # Added feature enabling owner of the created WinWall to create, put and delete
+    #updated to allow assignment or approvers or admins to a winwall or collection of winwalls
+    message = "Editing Win Wall data is restricted to the administrators & approvers of this site only."
+
+    def has_permission(self, request, view):
+        # GET_METHOD is a tuple that contains get, options and head
+        obj = WinWall.objects.get(pk=view.kwargs['pk'])
+        assignments = request.user.assignments.all()
+        user_has_assignment = any((assignment.win_wall_id == obj.id  or assignment.collection_id == obj.collection.id) and (assignment.is_admin or assignment.is_approver) for assignment in assignments)
+        
+        if request.method in SAFE_METHODS:
+            return True
+
+        return obj.owner == request.user or user_has_assignment or bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin))
 
 class StickyNoteOwnerWritePermission(permissions.BasePermission):
     # Added feature enabling only the admins or the author of the sticky note to edit
-    message = "Only the author of this sticky note can edit."
+    message = "Sticky notes can be edited, approved and archived only by approvers and admins."
 
     def has_object_permission(self, request, view, obj):
+
+        assignments = request.user.assignments.all()
+        user_has_assignment = any((assignment.win_wall_id == obj.win_wall.id  or assignment.collection_id == obj.win_wall.collection.id) and (assignment.is_admin or assignment.is_approver) for assignment in assignments)
+        
         if request.method in SAFE_METHODS:
             return True
 
-        # Checks that the user performing the action is either the Admin or SuperUser
-        # AND then checks that if it's an Approver performing the action, that they are only able to 
-            # make changes to the item they are directly assigned to
-        return obj.owner == request.user or bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin or (request.user.is_approver and obj.win_wall.owner == request.user)))
+        return user_has_assignment or bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin or (request.user.is_approver and obj.win_wall.owner == request.user)))
