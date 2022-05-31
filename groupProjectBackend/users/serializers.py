@@ -1,9 +1,12 @@
 from xmlrpc.client import Boolean
 from django.forms import CharField
+from pkg_resources import require
 from rest_framework import serializers
 from .models import SheCodesUser
+from winwall.models import UserAssignment
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
+
 
 class SheCodesUserSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
@@ -53,8 +56,20 @@ class SheCodesUserSerializer(serializers.Serializer):
         user.save()
         return user
 
+class UserAssignmentSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    is_admin = serializers.BooleanField(required=False)
+    is_approver = serializers.BooleanField(required=False)
+    assignee_id = serializers.IntegerField()
+    win_wall_id = serializers.IntegerField(required=False)
+    collection_id = serializers.IntegerField(required=False)
+    def create(self, validated_data):
+        return UserAssignment.objects.create(**validated_data)
+
+
 class ViewSheCodesUserSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
+    assignments = UserAssignmentSerializer(many=True, read_only=True)
     first_name = serializers.CharField(max_length=40)
     last_name = serializers.CharField(max_length=40)
     username = serializers.CharField(max_length=60,
@@ -71,6 +86,8 @@ class ViewSheCodesUserSerializer(serializers.Serializer):
     is_superuser = serializers.BooleanField()
     is_shecodes_admin = serializers.BooleanField()
     is_approver = serializers.BooleanField()
+    is_superuser = serializers.ReadOnlyField()
+    
 
     def create(self, validated_data):
         return SheCodesUser.objects.create(**validated_data)
