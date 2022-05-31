@@ -7,13 +7,11 @@ from datetime import datetime
 from django.utils import timezone
 from django.urls import reverse
 
-
 class Collection(models.Model):
     title = models.CharField(max_length=200)
     image = models.URLField()
     is_exported = models.BooleanField()
-    # url = models.URLField()
-    # slug = models.SlugField()
+    # slug = models.SlugField(unique=True, null=True)
     user_id = models.ForeignKey(
         get_user_model(),
         on_delete = models.CASCADE,
@@ -64,7 +62,6 @@ def get_user_or_anonymous():
     except ValueError:
         return  'self'
 
-# will need a link to users, winwalls and collections
 class StickyNote(models.Model):
     win_comment = models.CharField(max_length=200)
     is_approved = models.BooleanField(null=True, blank=True)
@@ -95,3 +92,29 @@ class StickyNote(models.Model):
     #     on_delete=models.CASCADE,
     # )
     
+class UserAssignment(models.Model):
+    # assignment used to override user permissions for specific collection and/or win wall 
+    # a single assignment will have a winwall or a collection specified 
+    is_admin = models.BooleanField(null=True, blank=True)
+    is_approver = models.BooleanField(null=True, blank=True)
+
+    assignee = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        related_name='assignments'
+    )
+
+    win_wall = models.ForeignKey(
+        'WinWall',
+        null=True, blank=True,
+        on_delete=models.CASCADE,
+        related_name='assigned_user'
+    )
+
+    collection = models.ForeignKey(
+        'Collection',
+        on_delete=models.CASCADE, 
+        null = True, 
+        blank = True,
+        related_name='assigned_user'
+        )

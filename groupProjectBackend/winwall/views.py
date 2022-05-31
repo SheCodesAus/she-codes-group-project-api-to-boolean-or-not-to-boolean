@@ -1,36 +1,24 @@
-import collections
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Collection, WinWall, StickyNote
-from .serializers import WinWallSerializer, WinWallDetailSerializer, StickyNoteSerializer, CollectionSerializer, CollectionDetailSerializer, StickyNoteDetailSerializer, WinWallBulkUpdateSerializer
-from unicodedata import category
-from django.shortcuts import render
 from django.http import Http404
 from django.contrib.auth.models import AnonymousUser
+from .models import Collection, WinWall, StickyNote, UserAssignment
+from .serializers import  WinWallSerializer, WinWallDetailSerializer, StickyNoteDetailSerializer, StickyNoteSerializer, CollectionSerializer, CollectionDetailSerializer, AdminStickyNoteDetailSerializer, WinWallBulkUpdateSerializer, UserAssignmentsSerializer, UserAssignmentsDetailSerializer
 from rest_framework import status, permissions
-from .permissions import IsOwnerOrReadOnly, IsAdminUserOrReadOnly, WinWallOwnerWritePermission, IsSuperUser, IsSuperUserOrAdmin, IsUserAnApprover
-from rest_framework.permissions import BasePermission, IsAdminUser, SAFE_METHODS
+from .permissions import WinWallBulkUpdatePermission, IsOwnerOrReadOnly, IsSuperUserOrAdmin, WinWallOwnerWritePermission, StickyNoteOwnerWritePermission, IsSuperUserOrAdminOrApprover
 
 class AdminWinWallList(APIView):
-    # admin / approver I can get the list of the WinWalls
-    # permission_classes = [
-    #     IsAdminUser
-    #     ]
-
-    def get_permissions(self):
-        permission_classes = []
-        if self.action == 'create':
-            permission_classes = [IsSuperUser, IsSuperUserOrAdmin]
-        elif self.action == 'update':
-            permission_classes = [IsSuperUserOrAdmin, IsUserAnApprover]
-        return [permission() for permission in permission_classes]
+    # SuperUser, Admin / Approver can get and post to the list of the WinWalls
+    permission_classes = [
+        IsSuperUserOrAdmin
+        ]
 
     def get(self, request):
         win_walls = WinWall.objects.all()
         serializer = WinWallSerializer(win_walls, many=True)
         return Response(serializer.data)
 
-    # admin / approver can post new WinWalls
+    # SuperUser, Admin / Approver can post new WinWalls
     def post(self,request):
         serializer = WinWallSerializer(data=request.data)
         if serializer.is_valid():
@@ -44,21 +32,11 @@ class AdminWinWallList(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST)
 
-class SheCoderWinWallList(APIView):
-    # SheCoders who are logged in or not logged in can view entire list of previous WinWalls
+class AdminWinWallDetailView(APIView):
+    # SuperUser, Admin or Approver of the WinWall can get, edit and delete
+    # updated, now we can assign an approver or admin to specific winwall or collection of winwalls via assignments model 
     permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly
-        ]
-
-    def get(self, request):
-        win_walls = WinWall.objects.all()
-        serializer = WinWallSerializer(win_walls, many=True)
-        return Response(serializer.data)
-
-class AdminWinWallDetailView(APIView, WinWallOwnerWritePermission):
-    # admins or the owner of the WinWall can get, edit and delete
-    permission_classes = [
-        IsAdminUser or WinWallOwnerWritePermission
+        WinWallOwnerWritePermission
         ]
 
     def get_object(self, pk):
@@ -84,7 +62,7 @@ class AdminWinWallDetailView(APIView, WinWallOwnerWritePermission):
             data = data,
             partial = True
         )
-
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -95,6 +73,17 @@ class AdminWinWallDetailView(APIView, WinWallOwnerWritePermission):
         win_wall = self.get_object(pk)
         win_wall.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class SheCoderWinWallList(APIView):
+    # Everyone who is logged in or out can get entire list of previous WinWalls
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly
+        ]
+
+    def get(self, request):
+        win_walls = WinWall.objects.all()
+        serializer = WinWallSerializer(win_walls, many=True)
+        return Response(serializer.data)
 
 class SheCoderWinWallDetailView(APIView):
     # any user accessing the website can getview WinWalls
@@ -117,7 +106,7 @@ class SheCoderWinWallDetailView(APIView):
         return Response(serializer.data)
 
 class WinWallBulkUpdate(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [WinWallBulkUpdatePermission]
 
     def get_object(self, pk):
         try:
@@ -148,7 +137,7 @@ class WinWallBulkUpdate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CollectionList(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperUserOrAdmin]
 
     def get(self, request):
         collections = Collection.objects.all()
@@ -167,8 +156,19 @@ class CollectionList(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST)
         
-class CollectionDetail(APIView):
-    permission_classes = [IsAdminUser]
+class SheCoderCollectionList(APIView):
+    # Everyone who is logged in or out can get entire list of Collections
+    # permission_classes = [
+    #     permissions.IsAuthenticatedOrReadOnly
+    #     ]
+
+    def get(self, request):
+        collections = Collection.objects.all()
+        serializer = CollectionSerializer(collections, many=True)
+        return Response(serializer.data)
+
+class AdminCollectionDetail(APIView):
+    permission_classes = [IsSuperUserOrAdmin]
 
     def get_object(self, pk):
         try:
@@ -192,6 +192,7 @@ class CollectionDetail(APIView):
             data=data,
             partial=True
         )
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -206,7 +207,21 @@ class CollectionDetail(APIView):
         collections = self.get_object(pk)
         collections.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-      
+
+class SheCoderCollectionDetail(APIView):
+    def get_object(self, pk):
+        try:
+            collections = Collection.objects.get(pk=pk)
+            self.check_object_permissions(self.request,collections)
+            return collections
+
+        except Collection.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        collections = self.get_object(pk)
+        serializer = CollectionDetailSerializer(collections)
+        return Response(serializer.data)
 
 class StickyNoteList(APIView):
     # guests and logged in users can post new sticky-notes
@@ -231,12 +246,52 @@ class StickyNoteList(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-class StickyNoteDetail(APIView):
-
-    # todo: sticky notes can be edited by owner or Admin 
+class AdminStickyNoteDetail(APIView):
     # sticky notes can only be approved or archved by admin 
     permission_classes = [
-        IsAdminUser
+        StickyNoteOwnerWritePermission
+        ]
+    
+    def get_object(self, pk):
+        try:
+            stickynote = StickyNote.objects.get(pk=pk)
+            self.check_object_permissions(self.request, stickynote)
+            return stickynote
+        except StickyNote.DoesNotExist:
+            raise Http404 
+
+    def get(self, request, pk):
+        stickynote = self.get_object(pk)
+        serializer = AdminStickyNoteDetailSerializer(stickynote)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        stickynote = self.get_object(pk)
+        data = request.data
+        serializer = AdminStickyNoteDetailSerializer(
+            instance=stickynote,
+            data=data,
+            partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+                )
+        return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        stickynote = self.get_object(pk)
+        stickynote.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class StickyNoteDetail(APIView):
+    # sticky notes can only be approved or archved by admin 
+    permission_classes = [
+        IsOwnerOrReadOnly
         ]
     
     def get_object(self, pk):
@@ -270,7 +325,63 @@ class StickyNoteDetail(APIView):
         serializer.errors,
         status=status.HTTP_400_BAD_REQUEST)
 
+class UserAssignmentList(APIView):
+    permission_classes = [ IsSuperUserOrAdmin]
+
+    def get(self, request):
+       assignments = UserAssignment.objects.all()
+       serializer = UserAssignmentsSerializer(assignments, many=True)
+       return Response(serializer.data)
+    
+    def post(self,request):
+        serializer = UserAssignmentsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data,
+                status = status.HTTP_201_CREATED)
+        
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST)
+        
+class UserAssigmentDetail(APIView):
+    permission_classes = [
+        IsSuperUserOrAdmin
+        ]
+    
+    def get_object(self, pk):
+        try:
+            assignment = UserAssignment.objects.get(pk=pk)
+            self.check_object_permissions(self.request, assignment)
+            return assignment
+        except UserAssignment.DoesNotExist:
+            raise Http404 
+
+    def get(self, request, pk):
+        assignment = self.get_object(pk)
+        serializer = UserAssignmentsDetailSerializer(assignment)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        assignment = self.get_object(pk)
+        data = request.data
+        serializer = UserAssignmentsDetailSerializer(
+            instance=assignment,
+            data=data,
+            partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+                )
+        return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, pk):
-        stickynote = self.get_object(pk)
-        stickynote.delete()
+        assignment = self.get_object(pk)
+        assignment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

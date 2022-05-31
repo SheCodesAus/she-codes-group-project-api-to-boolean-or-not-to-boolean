@@ -1,13 +1,19 @@
 from xmlrpc.client import Boolean
 from django.forms import CharField
+from pkg_resources import require
 from rest_framework import serializers
 from .models import SheCodesUser
+from winwall.models import UserAssignment
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
+
 class SheCodesUserSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
-    username = serializers.CharField(max_length=200)
+    username = serializers.CharField(max_length=200,
+        required=True,
+        validators=[UniqueValidator(queryset=SheCodesUser.objects.all())]
+        )
     first_name = serializers.CharField(max_length=200)
     last_name = serializers.CharField(max_length=200)
     email = serializers.EmailField(
@@ -50,11 +56,26 @@ class SheCodesUserSerializer(serializers.Serializer):
         user.save()
         return user
 
+class UserAssignmentSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    is_admin = serializers.BooleanField(required=False)
+    is_approver = serializers.BooleanField(required=False)
+    assignee_id = serializers.IntegerField()
+    win_wall_id = serializers.IntegerField(required=False)
+    collection_id = serializers.IntegerField(required=False)
+    def create(self, validated_data):
+        return UserAssignment.objects.create(**validated_data)
+
+
 class ViewSheCodesUserSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
+    assignments = UserAssignmentSerializer(many=True, read_only=True)
     first_name = serializers.CharField(max_length=40)
     last_name = serializers.CharField(max_length=40)
-    username = serializers.CharField(max_length=60)
+    username = serializers.CharField(max_length=60,
+        required=True,
+        validators=[UniqueValidator(queryset=SheCodesUser.objects.all())]
+        )
     email = serializers.EmailField(
         required=True,
         validators=[UniqueValidator(queryset=SheCodesUser.objects.all())]
@@ -62,8 +83,11 @@ class ViewSheCodesUserSerializer(serializers.Serializer):
     avatar = serializers.URLField()
     bio = serializers.CharField(max_length=600)
     social_link = serializers.URLField()
+    is_superuser = serializers.BooleanField()
     is_shecodes_admin = serializers.BooleanField()
     is_approver = serializers.BooleanField()
+    is_superuser = serializers.ReadOnlyField()
+    
 
     def create(self, validated_data):
         return SheCodesUser.objects.create(**validated_data)
@@ -77,12 +101,26 @@ class SheCodesUserDetailSerializer(ViewSheCodesUserSerializer):
             instance.avatar = validated_data.get('avatar', instance.avatar)
             instance.bio = validated_data.get('bio', instance.bio)
             instance.social_link = validated_data.get('social_link', instance.social_link)
-            # instance.is_shecodes_admin = validated_data('is_shecodes_admin', instance.is_shecodes_admin)
             instance.save()
             return instance
 
+# Used to Display Full List of Users
+class DisplaySheCodesUsernameDetailSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    username = serializers.CharField()
+
+# Used to gather permission levels for React drop-down
+class NameAndPermissionDataDetailSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    username = serializers.CharField()
+    is_superuser = serializers.BooleanField()
+    is_shecodes_admin = serializers.BooleanField()
+    is_approver = serializers.BooleanField()
+
 # Authorisation Specific Serializers:
 class IsAdminOrApproverDetailView(serializers.Serializer):
+    # This view is ONLY for the SuperUser or Admin to view whether a User is:
+        # A SuperUser, Admin, Approver or User
     id = serializers.ReadOnlyField()
     first_name = serializers.CharField(max_length=40)
     last_name = serializers.CharField(max_length=40)
@@ -90,6 +128,7 @@ class IsAdminOrApproverDetailView(serializers.Serializer):
         required=True,
         validators=[UniqueValidator(queryset=SheCodesUser.objects.all())]
         )
+    is_superuser = serializers.BooleanField()
     is_shecodes_admin = serializers.BooleanField()
     is_approver = serializers.BooleanField()
 
@@ -97,6 +136,7 @@ class IsAdminOrApproverDetailView(serializers.Serializer):
         return SheCodesUser.objects.create(**validated_data)
 
 class MakeUserAdminOrApproverDetailSerializer(IsAdminOrApproverDetailView):
+    # Serializer for SuperUsers only (used to Update a User to an Admin & Approver)
     is_shecodes_admin = serializers.BooleanField()
     is_approver = serializers.BooleanField()
 
@@ -107,6 +147,7 @@ class MakeUserAdminOrApproverDetailSerializer(IsAdminOrApproverDetailView):
         return instance
 
 class ChangeUserToApproverDetailSerializer(IsAdminOrApproverDetailView):
+    # Serializer for SuperUsers/Admins only (used to Update a User to an Approver)
     is_approver = serializers.BooleanField()
 
     def update(self, instance, validated_data):
