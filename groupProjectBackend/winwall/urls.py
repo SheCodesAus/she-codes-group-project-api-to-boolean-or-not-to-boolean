@@ -24,7 +24,10 @@ urlpatterns = [
     path('view-collections/', views.SheCoderCollectionList.as_view()),
     # admin / approver level only access for collections
     path('collections/', views.CollectionList.as_view()),
-    path('collection/<int:pk>/', views.CollectionDetail.as_view()),
+    # admin / approver level only access for collection ID
+    path('admin-collection/<int:pk>/', views.AdminCollectionDetail.as_view()),
+    # any user can view collection by ID
+    path('collection/<int:pk>/', views.SheCoderCollectionDetail.as_view()),
     path('assignments/', views.UserAssignmentList.as_view()),
     path('assignment/<int:pk>/', views.UserAssigmentDetail.as_view()),
 ]

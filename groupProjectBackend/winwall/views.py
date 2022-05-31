@@ -137,7 +137,7 @@ class WinWallBulkUpdate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CollectionList(APIView):
-    # permission_classes = [IsSuperUserOrAdmin]
+    permission_classes = [IsSuperUserOrAdmin]
 
     def get(self, request):
         collections = Collection.objects.all()
@@ -167,8 +167,8 @@ class SheCoderCollectionList(APIView):
         serializer = CollectionSerializer(collections, many=True)
         return Response(serializer.data)
 
-class CollectionDetail(APIView):
-    # permission_classes = [IsSuperUserOrAdmin]
+class AdminCollectionDetail(APIView):
+    permission_classes = [IsSuperUserOrAdmin]
 
     def get_object(self, pk):
         try:
@@ -207,7 +207,22 @@ class CollectionDetail(APIView):
         collections = self.get_object(pk)
         collections.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-      
+
+class SheCoderCollectionDetail(APIView):
+    def get_object(self, pk):
+        try:
+            collections = Collection.objects.get(pk=pk)
+            self.check_object_permissions(self.request,collections)
+            return collections
+
+        except Collection.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        collections = self.get_object(pk)
+        serializer = CollectionDetailSerializer(collections)
+        return Response(serializer.data)
+
 class StickyNoteList(APIView):
     # guests and logged in users can post new sticky-notes
     def get(self, request):

@@ -120,9 +120,7 @@ class WinWallSerializer(serializers.Serializer):
 
 # in progress - update all SN via WW 
 class WinWallBulkUpdateSerializer(serializers.Serializer):
-
     # bulk approve or archive sticky notes via the winwall, only as an admin 
-
     bulk_approve = serializers.BooleanField(required=False)
     bulk_archive = serializers.BooleanField(required=False)
 
@@ -153,6 +151,8 @@ class CollectionDetailSerializer(CollectionSerializer):
         instance.is_exported = validated_data.get('is_exported', instance.is_exported)
         # instance.slug = validated_data.get('slug', instance.slug)        
         instance.save() 
+        return instance
+
 class UserAssignmentsSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     is_admin = serializers.BooleanField(required=False)

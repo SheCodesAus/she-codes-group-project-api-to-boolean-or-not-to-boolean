@@ -69,7 +69,7 @@ class WinWallBulkUpdatePermission(permissions.BasePermission):
         if request.method in SAFE_METHODS:
             return True
 
-        return obj.owner == request.user or user_has_assignment or bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin))
+        return obj.owner == request.user or user_has_assignment or bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin or request.user.is_approver))
 
 class StickyNoteOwnerWritePermission(permissions.BasePermission):
     # Added feature enabling only the admins or the author of the sticky note to edit
@@ -83,4 +83,4 @@ class StickyNoteOwnerWritePermission(permissions.BasePermission):
         if request.method in SAFE_METHODS:
             return True
 
-        return user_has_assignment or bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin or (request.user.is_approver and obj.win_wall.owner == request.user)))
+        return user_has_assignment or bool(request.user and (request.user.is_superuser or request.user.is_shecodes_admin or (request.user.is_approver or obj.win_wall.owner == request.user)))
