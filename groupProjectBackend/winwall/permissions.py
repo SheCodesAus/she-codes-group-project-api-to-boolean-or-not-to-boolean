@@ -42,8 +42,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 # Detailed Authentication - Based on User ID that is associated with task
 class WinWallOwnerWritePermission(permissions.BasePermission):
     # Added feature enabling owner of the created WinWall to create, put and delete
-    #updated to allow assignment or approvers or admins to a winwall or collection of winwalls
-    message = "Editing Win Wall data is restricted to the administrators & approvers of this site only."
+    message = "Editing Win Wall data is restricted to the specific administrators & approvers of this site only."
 
     def has_object_permission(self, request, view, obj):
         # GET_METHOD is a tuple that contains get, options and head

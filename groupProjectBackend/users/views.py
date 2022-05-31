@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from .models import SheCodesUser
 from .serializers import SheCodesUserSerializer, SheCodesUserDetailSerializer, ViewSheCodesUserSerializer, MakeUserAdminOrApproverDetailSerializer, ChangeUserToApproverDetailSerializer, DisplaySheCodesUsernameDetailSerializer, NameAndPermissionDataDetailSerializer
-from .permissions import IsSuperUser, IsSuperUserOrAdmin, IsProfileOwnerOrAdminOrSuperUserOrReadOnly
+from .permissions import IsSuperUser, IsSuperUserOrAdmin, IsOwnerOrReadOnly
 
 class CustomObtainAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
@@ -81,9 +81,7 @@ class SheCoderDataPermissions(APIView):
         return Response(serializer.data)
 
 class SheCodesUserDetail(APIView):
-    permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly,
-        ]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def get_object(self, pk):
         try:
