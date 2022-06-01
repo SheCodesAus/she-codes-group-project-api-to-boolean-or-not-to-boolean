@@ -47,7 +47,7 @@ class WinWallOwnerWritePermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         # GET_METHOD is a tuple that contains get, options and head
         assignments = request.user.assignments.all()
-        user_has_assignment = any((assignment.win_wall_id == obj.id  or assignment.collection_id == obj.collection.id) and (assignment.is_admin or assignment.is_approver) for assignment in assignments)
+        user_has_assignment = any((assignment.win_wall_id == obj.id  or assignment.collection_id == obj.collection_id) and (assignment.is_admin or assignment.is_approver) for assignment in assignments)
         
         if request.method in SAFE_METHODS:
             return True
@@ -78,7 +78,7 @@ class StickyNoteOwnerWritePermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
 
         assignments = request.user.assignments.all()
-        user_has_assignment = any((assignment.win_wall_id == obj.win_wall.id  or assignment.collection_id == obj.win_wall.collection.id) and (assignment.is_admin or assignment.is_approver) for assignment in assignments)
+        user_has_assignment = any((assignment.win_wall_id == obj.win_wall.id  or assignment.collection_id == obj.win_wall.collection_id) and (assignment.is_admin or assignment.is_approver) for assignment in assignments)
         
         if request.method in SAFE_METHODS:
             return True
