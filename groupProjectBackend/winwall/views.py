@@ -226,7 +226,7 @@ class SheCoderCollectionDetail(APIView):
 class StickyNoteList(APIView):
     # guests and logged in users can post new sticky-notes
     def get(self, request):
-        stickynotes = StickyNote.objects.all()
+        stickynotes = StickyNote.objects.all().order_by('id')
         serializer = StickyNoteSerializer(stickynotes, many=True)
         return Response(serializer.data)
 

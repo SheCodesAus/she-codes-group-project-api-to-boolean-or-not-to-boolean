@@ -116,7 +116,13 @@ class WinWallBulkUpdateSerializer(serializers.Serializer):
 
 #fixed serializer
 class WinWallDetailSerializer(WinWallSerializer):
-    stickynotes = StickyNoteDetailSerializer(many=True, read_only=True)
+    stickynotes = serializers.SerializerMethodField() 
+    
+    # fix to make stickynotes order correctly after update 
+
+    def get_stickynotes(self,obj):
+        notes = obj.stickynotes.order_by('id')
+        return StickyNoteDetailSerializer(notes,many = True).data
 
     def update(self, instance, validated_data):
         
