@@ -21,13 +21,9 @@ class StickyNoteSerializer(serializers.Serializer):
     guest = serializers.SerializerMethodField()
     owner = serializers.ReadOnlyField(source='owner.id', required=False)
     owner_name = serializers.ReadOnlyField(source='owner.username', required=False)
-    
-    # for sticky notename, would need to make this optional via serializer as well 
-    # contributorName = serializers.CharField(max_length=20)
 
     # link to WinWall  and status
     win_wall_id = serializers.IntegerField()
-    # sticky_note_status_id = serializers.IntegerField
 
     # mthod 2 using a computed status, think this is a better method 
     win_wall_live = serializers.SerializerMethodField()
@@ -72,7 +68,6 @@ class StickyNoteDetailSerializer(StickyNoteSerializer):
     def get_sticky_status(self, obj):
         return self.compute_status(obj)
 
-
     def update(self, instance, validated_data):
         instance.win_comment = validated_data.get('win_comment', instance.win_comment)
         instance.save()
@@ -82,7 +77,6 @@ class AdminStickyNoteDetailSerializer(StickyNoteSerializer):
     is_approved = serializers.BooleanField(required=False)
     is_archived = serializers.BooleanField(required=False)
     sticky_status = serializers.SerializerMethodField()
-
     def get_sticky_status(self, obj):
         return self.compute_status(obj)
 
@@ -115,9 +109,7 @@ class WinWallSerializer(serializers.Serializer):
 
 # in progress - update all SN via WW 
 class WinWallBulkUpdateSerializer(serializers.Serializer):
-
     # bulk approve or archive sticky notes via the winwall, only as an admin 
-
     bulk_approve = serializers.BooleanField(required=False)
     bulk_archive = serializers.BooleanField(required=False)
 
@@ -135,7 +127,6 @@ class WinWallDetailSerializer(WinWallSerializer):
         instance.is_open = validated_data.get('is_open', instance.is_open)
         instance.is_exported = validated_data.get('is_exported', instance.is_exported)
         instance.owner = validated_data.get('owner', instance.owner)
-
         instance.save()
         return instance
 
@@ -146,8 +137,9 @@ class CollectionDetailSerializer(CollectionSerializer):
         instance.title = validated_data.get('title', instance.title)
         instance.image = validated_data.get('image', instance.image)
         instance.is_exported = validated_data.get('is_exported', instance.is_exported)
-        # instance.slug = validated_data.get('slug', instance.slug)        
         instance.save() 
+        return instance
+        
 class UserAssignmentsSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     is_admin = serializers.BooleanField(required=False)
