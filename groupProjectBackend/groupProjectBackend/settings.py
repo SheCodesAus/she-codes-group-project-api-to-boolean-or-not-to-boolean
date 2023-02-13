@@ -107,8 +107,12 @@ WSGI_APPLICATION = 'groupProjectBackend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': str(BASE_DIR / 'db.sqlite3'),
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME': 'new_db',
+    'USER' : 'mariagroupproject',
+    'PASSWORD' : 'new_db@123',
+    'HOST' :'localhost',
+    'PORT' : '5432',
     }
 }
 db_from_env = dj_database_url.config(conn_max_age=500)
