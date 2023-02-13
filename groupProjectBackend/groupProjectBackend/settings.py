@@ -111,12 +111,12 @@ DATABASES = {
     'NAME': 'new_db',
     'USER' : 'mariagroupproject',
     'PASSWORD' : 'new_db@123',
-    'HOST' :'localhost',
+    'HOST' :'127.0.0.1',
     'PORT' : '5432',
     }
 }
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
+# db_from_env = dj_database_url.config(conn_max_age=500)
+# DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
