@@ -3,7 +3,7 @@
 SuperUser (Heroku): 
         Username: KateKirwin
         Email: kate@spacecubed.com
-        Password: SheCodesPlus2022
+        <!-- Password: SheCodesPlus2022 -->
 
 
 URL for frontend - 
