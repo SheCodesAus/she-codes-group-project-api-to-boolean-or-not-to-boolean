@@ -105,19 +105,22 @@ WSGI_APPLICATION = 'groupProjectBackend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    'NAME': 'new_db',
-    'USER' : 'mariagroupproject',
-    'PASSWORD' : 'new_db@123',
-    'HOST' :'127.0.0.1',
-    'PORT' : '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'new_db',
+#         'USER': 'mariagroupproject',
+#         'PASSWORD': 'new_db@123',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#     }
+# }
 # db_from_env = dj_database_url.config(conn_max_age=500)
 # DATABASES['default'].update(db_from_env)
 
+DATABASES = {
+    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+}
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
